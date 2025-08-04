@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Campaign Map</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .map-container {
+            position: relative;
+            display: inline-block;
+            border: 2px solid #444;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        
+        #gameMap {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+            -webkit-user-drag: none;
+            -khtml-user-drag: none;
+            -moz-user-drag: none;
+            -o-user-drag: none;
+            user-drag: none;
+        }
+        
+        .token {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            cursor: grab;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            transition: all 0.2s ease;
+        }
+        
+        .token:active {
+            cursor: grabbing;
+        }
+        
+        .token:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+        }
+        
+        .token.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px #ffd700;
+        }
+        
+        .token-pool {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            z-index: 15;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+        
+        .token-pool:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        .radial-pool {
+            position: absolute;
+            pointer-events: none;
+            z-index: 20;
+        }
+        
+        .radial-zone {
+            position: absolute;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 50%;
+            pointer-events: all;
+            z-index: 19;
+            transform: translate(-50%, -50%);
+        }
+        
+        .radial-token {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            cursor: grab;
+            transform: translate(-50%, -50%);
+            z-index: 21;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            pointer-events: all;
+        }
+        
+        .radial-token:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 4px 12px rgba(255,255,255,0.5);
+        }
+        
+        .radial-token:active {
+            cursor: grabbing;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        input, select, button {
+            padding: 8px 12px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #333;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #4CAF50;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .token-list {
+            margin-top: 20px;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .token-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: #3a3a3a;
+            border-radius: 4px;
+        }
+        
+        .token-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .token-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid #fff;
+        }
+        
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .coordinate-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        
+        .mode-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 20;
+        }
+        
+        .mode-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .mode-btn.active {
+            background: #2196F3;
+        }
+        
+        .mode-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .floating-token-creator {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+            z-index: 30;
+            display: none;
+            min-width: 250px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        
+        .floating-token-creator input,
+        .floating-token-creator select,
+        .floating-token-creator textarea {
+            width: 100%;
+            margin: 5px 0;
+            padding: 5px;
+            border: 1px solid #555;
+            border-radius: 3px;
+            background: #333;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .floating-token-creator textarea {
+            resize: vertical;
+            height: 40px;
+        }
+        
+        .floating-token-creator .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .floating-token-creator button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .create-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .cancel-btn {
+            background: #f44336;
+            color: white;
+        }
+        
+        .token-tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.95);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 1000;
+            pointer-events: none;
+            max-width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .token-tooltip.pinned {
+            border: 2px solid #ffd700;
+            box-shadow: 0 4px 12px rgba(255,215,0,0.4);
+        }
+        
+        
+        .token-tooltip .name {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #ffd700;
+        }
+        
+        .token-tooltip .stat-line {
+            margin: 2px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .token-tooltip .stat-label {
+            color: #ccc;
+        }
+        
+        .token-tooltip.pool-tooltip {
+            position: relative; /* Changed from fixed to relative for container */
+            width: 220px;
+            max-width: 220px;
+            pointer-events: auto;
+            background: rgba(20,20,20,0.98);
+            border-left: 3px solid #4CAF50;
+            margin-bottom: 8px; /* Tighter spacing between tooltips */
+        }
+        
+        .token-tooltip.pool-tooltip.pinned {
+            border-left: 3px solid #ffd700;
+            background: rgba(30,25,0,0.98);
+            border: 2px solid #ffd700;
+            box-shadow: 0 4px 12px rgba(255,215,0,0.4);
+        }
+        
+        .tooltip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        
+        .close-tooltip-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+        }
+        
+        .close-tooltip-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .pool-tooltips-container {
+            position: fixed;
+            right: 10px; /* Moved closer to edge to give scrollbar room */
+            top: 100px;
+            bottom: 20px;
+            width: 250px; /* Slightly wider to accommodate scrollbar */
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1001;
+            pointer-events: none; /* Allow clicking through empty space */
+            padding-right: 10px; /* Space for scrollbar */
+        }
+        
+        .pool-tooltips-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .pool-tooltips-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .pool-tooltips-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+        
+        .pool-tooltips-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .token.proximity-pulse, .token-pool.proximity-pulse {
+            animation: proximityPulse 0.8s ease-in-out infinite;
+        }
+        
+        @keyframes proximityPulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.3); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; z-index: 1000;">
+            v1.5.3
+        </div>
+        <div class="header">
+            <h1>🐉 D&D Campaign Map</h1>
+            <p>Click on the map to place tokens, or select existing tokens to move them</p>
+        </div>
+        
+        <div class="map-container">
+            <img id="gameMap" src="map.png" alt="Campaign Map">
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="viewMode">View Mode</button>
+                <button class="mode-btn" id="createMode">Create Mode</button>
+            </div>
+            <div class="floating-token-creator" id="tokenCreator">
+                <h4 style="margin-top: 0;">Create Token</h4>
+                <input type="text" id="floatingTokenName" placeholder="Token Name" />
+                <input type="text" id="floatingTokenFaction" list="factionOptions" placeholder="Faction (e.g. Ally, Enemy)" />
+                <datalist id="factionOptions">
+                    <option value="Ally">
+                    <option value="Enemy">
+                    <option value="Neutral">
+                    <option value="Player Character">
+                </datalist>
+                <input type="number" id="floatingTokenHP" placeholder="HP" min="0" />
+                <input type="text" id="floatingTokenAttack" placeholder="Attack (e.g. 5 or 1d6+3)" />
+                <input type="text" id="floatingTokenCounterattack" placeholder="Counterattack (e.g. 3 or 1d4+1)" />
+                <input type="text" id="floatingTokenSpecial" placeholder="Special Abilities" />
+                <textarea id="floatingTokenNotes" placeholder="Notes"></textarea>
+                <select id="floatingTokenColor">
+                    <option value="#FF0000">Red (Enemy)</option>
+                    <option value="#00FF00">Green (Ally)</option>
+                    <option value="#0000FF">Blue (PC)</option>
+                    <option value="#FFD700">Gold (Important)</option>
+                    <option value="#FF00FF">Purple (Magic)</option>
+                    <option value="#FFA500">Orange (NPC)</option>
+                </select>
+                <div class="button-row">
+                    <button class="create-btn" id="createTokenBtn">Create</button>
+                    <button class="cancel-btn" id="cancelTokenBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">            
+            <button id="clearAllTokens">Clear All Tokens</button>
+        </div>
+        
+        <div class="token-list">
+            <h3>Active Tokens</h3>
+            <div id="tokensList">
+                <p>No tokens placed yet</p>
+            </div>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        
+        const gameMap = document.getElementById('gameMap');
+        const mapContainer = document.querySelector('.map-container');
+        const tokensList = document.getElementById('tokensList');
+        const status = document.getElementById('status');
+        
+        let tokens = [];
+        let selectedToken = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let currentMode = 'view'; // 'view' or 'create'
+        let pendingTokenLocation = null;
+        let usedFactions = new Set(['Ally', 'Enemy', 'Neutral', 'Player Character']);
+        let isDraggingFromPool = false;
+        let pinnedTooltipTokenIds = new Set();
+        let renderTokensTimeout = null;
+        let preservedPinnedTokens = new Set(); // Preserve pinned state during operations
+        let recentlyDraggedTokens = new Set(); // Track recently dragged tokens to prevent auto-pinning
+        let tooltipPositions = new Map(); // Track tooltip positions manually
+        let poolTooltipsContainer = null; // Container for pool tooltips
+        
+        // No region detection - just show coordinates
+        
+        // Socket event handlers
+        socket.on('tokens:load', (loadedTokens) => {
+            tokens = loadedTokens;
+            updateFactionOptions();
+            debouncedRenderTokens();
+            updateTokensList();
+        });
+        
+        socket.on('token:placed', (token) => {
+            tokens.push(token);
+            updateFactionOptions();
+            debouncedRenderTokens();
+            updateTokensList();
+            showStatus(`Token "${token.name}" placed at (${token.x}, ${token.y})`);
+        });
+        
+        socket.on('token:moved', (data) => {
+            const token = tokens.find(t => t.id === data.tokenId);
+            if (token) {
+                token.x = data.x;
+                token.y = data.y;
+                debouncedRenderTokens();
+                updateTokensList();
+                showStatus(`Token moved to (${data.x}, ${data.y})`);
+            }
+        });
+        
+        socket.on('token:removed', (tokenId) => {
+            tokens = tokens.filter(t => t.id !== tokenId);
+            if (selectedToken && selectedToken.id === tokenId) {
+                selectedToken = null;
+            }
+            debouncedRenderTokens();
+            updateTokensList();
+            showStatus('Token removed');
+        });
+        
+        // Mode toggle handlers
+        document.getElementById('viewMode').addEventListener('click', () => {
+            currentMode = 'view';
+            document.getElementById('viewMode').classList.add('active');
+            document.getElementById('createMode').classList.remove('active');
+            hideTokenCreator();
+            gameMap.style.cursor = 'default';
+            hideTokenTooltip();
+        });
+        
+        document.getElementById('createMode').addEventListener('click', () => {
+            currentMode = 'create';
+            document.getElementById('createMode').classList.add('active');
+            document.getElementById('viewMode').classList.remove('active');
+            gameMap.style.cursor = 'crosshair';
+            hideTokenTooltip();
+        });
+        
+        // Map click handler
+        gameMap.addEventListener('click', (e) => {
+            if (isDragging) return; // Don't handle clicks during drag
+            
+            const rect = gameMap.getBoundingClientRect();
+            const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
+            const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
+            
+            const x = Math.round((e.clientX - rect.left) * scaleX);
+            const y = Math.round((e.clientY - rect.top) * scaleY);
+            
+            if (currentMode === 'create') {
+                // Show floating token creator
+                showTokenCreator(e.clientX, e.clientY, x, y);
+            }
+        });
+        
+        
+        // Control button handlers
+        
+        document.getElementById('clearAllTokens').addEventListener('click', () => {
+            if (confirm('Are you sure you want to remove all tokens?')) {
+                tokens.forEach(token => {
+                    socket.emit('token:remove', token.id);
+                });
+            }
+        });
+        
+        // Helper functions
+        function findTokenAtPosition(clientX, clientY) {
+            const tolerance = 15; // pixels
+            const rect = gameMap.getBoundingClientRect();
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+            
+            return tokens.find(token => {
+                const tokenScreenX = token.x * scaleX;
+                const tokenScreenY = token.y * scaleY;
+                
+                const distance = Math.sqrt(
+                    Math.pow(clientX - tokenScreenX, 2) + 
+                    Math.pow(clientY - tokenScreenY, 2)
+                );
+                
+                return distance <= tolerance;
+            });
+        }
+        
+        function selectToken(token) {
+            selectedToken = token;
+            debouncedRenderTokens();
+            showStatus(`Selected "${token.name}" - click elsewhere to move`);
+        }
+        
+        function debouncedRenderTokens() {
+            // Clear any pending render
+            if (renderTokensTimeout) {
+                clearTimeout(renderTokensTimeout);
+            }
+            
+            // Schedule a new render
+            renderTokensTimeout = setTimeout(() => {
+                console.log('Debounced renderTokens executing');
+                renderTokens();
+                renderTokensTimeout = null;
+            }, 50); // 50ms debounce delay
+        }
+        
+        function renderTokens() {
+            // Use preserved pinned tooltips if available, otherwise current ones
+            const currentlyPinnedTokens = preservedPinnedTokens.size > 0 
+                ? new Set(preservedPinnedTokens) 
+                : new Set(pinnedTooltipTokenIds);
+            console.log('renderTokens called, using preserved:', preservedPinnedTokens, 'or current:', pinnedTooltipTokenIds, 'final:', currentlyPinnedTokens);
+            
+            // Remove existing token and pool elements
+            document.querySelectorAll('.token, .token-pool, .radial-pool').forEach(el => el.remove());
+            
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+            
+            // Group tokens by proximity (within 30 pixels)
+            const tokenPools = groupTokensByProximity(tokens, 30, scaleX, scaleY);
+            
+            tokenPools.forEach(pool => {
+                if (pool.length === 1) {
+                    // Single token - render normally
+                    renderSingleToken(pool[0], scaleX, scaleY);
+                } else {
+                    // Multiple tokens - render as pool
+                    renderTokenPool(pool, scaleX, scaleY);
+                }
+            });
+            
+            // Restore previously pinned tooltips after re-rendering
+            setTimeout(() => {
+                console.log('Restoring pinned tooltips:', currentlyPinnedTokens, 'at time:', Date.now());
+                currentlyPinnedTokens.forEach(tokenId => {
+                    const token = tokens.find(t => t.id === tokenId);
+                    if (token) {
+                        pinnedTooltipTokenIds.add(tokenId);
+                        
+                        // Check if token is in a pool or standalone
+                        const tokenPool = tokenPools.find(pool => pool.some(t => t.id === tokenId));
+                        if (tokenPool && tokenPool.length > 1) {
+                            // Token is in a pool - use pool tooltip positioning
+                            console.log('Restoring pool tooltip for token:', token.name);
+                            showPoolTooltip(token, 0, 0, true);
+                            
+                            // Verify pool tooltip was created
+                            setTimeout(() => {
+                                const tooltipExists = document.getElementById(`tokenTooltip-${token.id}`);
+                                console.log('Pool tooltip exists after creation:', !!tooltipExists, 'for token:', token.name);
+                            }, 50);
+                        } else {
+                            // Token is standalone - use regular tooltip positioning
+                            console.log('Restoring single tooltip for token:', token.name);
+                            const rect = gameMap.getBoundingClientRect();
+                            const screenX = rect.left + (token.x * scaleX) + 20;
+                            const screenY = rect.top + (token.y * scaleY) + 20;
+                            console.log('Calling showTokenTooltip with:', token.name, screenX, screenY, true);
+                            showTokenTooltip(token, screenX, screenY, true);
+                            
+                            // Double-check if tooltip was created
+                            setTimeout(() => {
+                                const tooltipExists = document.getElementById(`tokenTooltip-${token.id}`);
+                                console.log('Single tooltip exists after creation:', !!tooltipExists, 'for token:', token.name);
+                                if (!tooltipExists) {
+                                    console.error('Failed to create tooltip for token:', token.name, 'ID:', tokenId);
+                                    // Try again with a longer delay
+                                    setTimeout(() => {
+                                        console.log('Retrying tooltip creation for:', token.name);
+                                        showTokenTooltip(token, screenX, screenY, true);
+                                    }, 100);
+                                }
+                            }, 50);
+                        }
+                    } else {
+                        console.error('Token not found for restoration:', tokenId);
+                    }
+                });
+                
+                // Clear preserved state after restoration
+                preservedPinnedTokens.clear();
+                console.log('Cleared preserved pinned tokens after restoration');
+            }, 150); // Increased delay to ensure DOM is fully updated
+        }
+        
+        function groupTokensByProximity(tokens, threshold, scaleX, scaleY) {
+            const pools = [];
+            const processed = new Set();
+            
+            tokens.forEach(token => {
+                if (processed.has(token.id)) return;
+                
+                const pool = [token];
+                processed.add(token.id);
+                
+                // Find nearby tokens
+                tokens.forEach(otherToken => {
+                    if (processed.has(otherToken.id)) return;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow((token.x - otherToken.x) * scaleX, 2) +
+                        Math.pow((token.y - otherToken.y) * scaleY, 2)
+                    );
+                    
+                    if (distance <= threshold) {
+                        pool.push(otherToken);
+                        processed.add(otherToken.id);
+                    }
+                });
+                
+                pools.push(pool);
+            });
+            
+            return pools;
+        }
+        
+        function renderSingleToken(token, scaleX, scaleY) {
+            const tokenEl = document.createElement('div');
+            tokenEl.className = 'token';
+            tokenEl.style.backgroundColor = token.color;
+            tokenEl.style.left = (token.x * scaleX) + 'px';
+            tokenEl.style.top = (token.y * scaleY) + 'px';
+            // Remove native tooltip to avoid covering custom tooltip
+            tokenEl.dataset.tokenId = token.id;
+            
+            if (selectedToken && selectedToken.id === token.id) {
+                tokenEl.classList.add('selected');
+            }
+            
+            // Add hover tooltip
+            let tooltipTimeout;
+            tokenEl.addEventListener('mouseenter', (e) => {
+                if (currentMode === 'view' && !isDragging && !pinnedTooltipTokenIds.has(token.id)) {
+                    tooltipTimeout = setTimeout(() => {
+                        showTokenTooltip(token, e.clientX, e.clientY);
+                    }, 500);
+                }
+            });
+            
+            tokenEl.addEventListener('mouseleave', () => {
+                clearTimeout(tooltipTimeout);
+                if (!pinnedTooltipTokenIds.has(token.id)) {
+                    hideSpecificTokenTooltip(token.id);
+                }
+            });
+            
+            // Add click handler for pinning tooltips
+            tokenEl.addEventListener('click', (e) => {
+                if (currentMode === 'view' && !isDragging) {
+                    // Skip click if token was just dragged
+                    if (recentlyDraggedTokens.has(token.id)) {
+                        console.log('Ignoring click after drag for token:', token.name, token.id);
+                        return;
+                    }
+                    
+                    e.stopPropagation();
+                    
+                    if (pinnedTooltipTokenIds.has(token.id)) {
+                        // Unpin this specific tooltip
+                        pinnedTooltipTokenIds.delete(token.id);
+                        hideSpecificTokenTooltip(token.id);
+                    } else {
+                        // Pin this tooltip (others remain open)
+                        pinnedTooltipTokenIds.add(token.id);
+                        showTokenTooltip(token, e.clientX, e.clientY, true);
+                    }
+                }
+            });
+            
+            // Add drag functionality  
+            tokenEl.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                selectedToken = token;
+                const startX = e.clientX;
+                const startY = e.clientY;
+                let hasMoved = false;
+                let dragStarted = false;
+                
+                const rect = gameMap.getBoundingClientRect();
+                dragOffset.x = e.clientX - rect.left - (token.x * scaleX);
+                dragOffset.y = e.clientY - rect.top - (token.y * scaleY);
+                
+                const handleMouseMove = (moveE) => {
+                    const dx = moveE.clientX - startX;
+                    const dy = moveE.clientY - startY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Only start dragging if moved more than 5 pixels
+                    if (distance > 5 && !dragStarted) {
+                        dragStarted = true;
+                        isDragging = true;
+                        // Preserve pinned tooltips before clearing
+                        preservedPinnedTokens = new Set(pinnedTooltipTokenIds);
+                        console.log('Preserving pinned tooltips before single token drag:', preservedPinnedTokens);
+                        hideTokenTooltip(); // Only clear tooltips when actually dragging
+                        tokenEl.style.cursor = 'grabbing';
+                    }
+                    
+                    if (dragStarted) {
+                        handleTokenDrag(moveE);
+                    }
+                };
+                
+                const handleMouseUp = (upE) => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    
+                    if (dragStarted) {
+                        handleTokenDragEnd(upE);
+                        // Tooltips will be restored by renderTokens() when socket update comes back
+                        
+                        // Prevent click event from firing after drag
+                        recentlyDraggedTokens.add(token.id);
+                        console.log('Added token to recently dragged:', token.id);
+                        setTimeout(() => {
+                            recentlyDraggedTokens.delete(token.id);
+                            console.log('Removed token from recently dragged:', token.id);
+                        }, 200);
+                    }
+                    
+                    tokenEl.style.cursor = '';
+                    selectedToken = null;
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
+            
+            mapContainer.appendChild(tokenEl);
+        }
+        
+        function renderTokenPool(pool, scaleX, scaleY) {
+            // Calculate center position of pool
+            const centerX = pool.reduce((sum, token) => sum + token.x, 0) / pool.length;
+            const centerY = pool.reduce((sum, token) => sum + token.y, 0) / pool.length;
+            
+            const poolEl = document.createElement('div');
+            poolEl.className = 'token-pool';
+            poolEl.style.left = (centerX * scaleX) + 'px';
+            poolEl.style.top = (centerY * scaleY) + 'px';
+            poolEl.textContent = pool.length.toString();
+            poolEl.title = `${pool.length} tokens: ${pool.map(t => t.name).join(', ')}`;
+            
+            // Add drag functionality to move entire pool
+            poolEl.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('Pool mousedown detected');
+                
+                const startX = e.clientX;
+                const startY = e.clientY;
+                let dragStarted = false;
+                let hoverTimeout;
+                
+                const rect = gameMap.getBoundingClientRect();
+                const poolCenterX = centerX * scaleX;
+                const poolCenterY = centerY * scaleY;
+                const dragOffset = {
+                    x: e.clientX - rect.left - poolCenterX,
+                    y: e.clientY - rect.top - poolCenterY
+                };
+                
+                // Set up hover timeout for radial display
+                hoverTimeout = setTimeout(() => {
+                    if (!dragStarted) {
+                        showRadialPool(pool, centerX * scaleX, centerY * scaleY, poolEl);
+                    }
+                }, 300);
+                
+                const handleMouseMove = (moveE) => {
+                    const dx = moveE.clientX - startX;
+                    const dy = moveE.clientY - startY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Only start dragging if moved more than 5 pixels
+                    if (distance > 5 && !dragStarted) {
+                        console.log('Starting pool drag');
+                        dragStarted = true;
+                        isDragging = true;
+                        // Preserve pinned tooltips before clearing
+                        preservedPinnedTokens = new Set(pinnedTooltipTokenIds);
+                        console.log('Preserving pinned tooltips before pool drag:', preservedPinnedTokens);
+                        hideTokenTooltip(); // Clear tooltips when dragging pool
+                        poolEl.style.cursor = 'grabbing';
+                        poolEl.style.display = 'none'; // Hide pool center during drag
+                        clearTimeout(hoverTimeout); // Cancel hover
+                        hideRadialPool(); // Hide radial display
+                    }
+                    
+                    if (dragStarted) {
+                        // Move pool visually
+                        const newX = moveE.clientX - rect.left - dragOffset.x;
+                        const newY = moveE.clientY - rect.top - dragOffset.y;
+                        poolEl.style.left = newX + 'px';
+                        poolEl.style.top = newY + 'px';
+                    }
+                };
+                
+                const handleMouseUp = (upE) => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    
+                    // Clear hover timeout if no drag happened
+                    if (!dragStarted) {
+                        clearTimeout(hoverTimeout);
+                    }
+                    
+                    if (dragStarted) {
+                        // Calculate new center position
+                        const newCenterX = (upE.clientX - rect.left - dragOffset.x) / scaleX;
+                        const newCenterY = (upE.clientY - rect.top - dragOffset.y) / scaleY;
+                        
+                        // Calculate offset from old center
+                        const offsetX = newCenterX - centerX;
+                        const offsetY = newCenterY - centerY;
+                        
+                        console.log('Moving pool:', pool.length, 'tokens by offset:', offsetX, offsetY);
+                        
+                        // Move all tokens in the pool
+                        pool.forEach(token => {
+                            const newX = Math.round(token.x + offsetX);
+                            const newY = Math.round(token.y + offsetY);
+                            
+                            console.log('Moving token', token.name, 'from', token.x, token.y, 'to', newX, newY);
+                            
+                            socket.emit('token:move', {
+                                tokenId: token.id,
+                                x: newX,
+                                y: newY
+                            });
+                        });
+                        
+                        isDragging = false;
+                    }
+                    
+                    poolEl.style.cursor = '';
+                    poolEl.style.display = ''; // Restore pool center visibility
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
+            
+            // Add hover functionality separately (not tied to drag)
+            let hoverTimeout;
+            poolEl.addEventListener('mouseenter', (e) => {
+                if (!isDragging) {
+                    hoverTimeout = setTimeout(() => {
+                        showRadialPool(pool, centerX * scaleX, centerY * scaleY, poolEl);
+                    }, 300);
+                }
+            });
+            
+            poolEl.addEventListener('mouseleave', () => {
+                clearTimeout(hoverTimeout);
+            });
+            
+            mapContainer.appendChild(poolEl);
+        }
+        
+        function handleTokenDrag(e) {
+            if (!isDragging || !selectedToken) return;
+            
+            // Use requestAnimationFrame for smoother dragging
+            requestAnimationFrame(() => {
+                const rect = gameMap.getBoundingClientRect();
+                const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+                const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+                
+                const displayX = e.clientX - rect.left - dragOffset.x;
+                const displayY = e.clientY - rect.top - dragOffset.y;
+                
+                // Update token position visually
+                const tokenEl = document.querySelector(`[data-token-id="${selectedToken.id}"]`);
+                if (tokenEl) {
+                    tokenEl.style.left = displayX + 'px';
+                    tokenEl.style.top = displayY + 'px';
+                }
+                
+                // Check for proximity to other tokens/pools for visual feedback
+                updateProximityPulse(displayX, displayY, selectedToken.id);
+            });
+        }
+        
+        function handleTokenDragEnd(e) {
+            if (!isDragging || !selectedToken) return;
+            
+            const rect = gameMap.getBoundingClientRect();
+            const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
+            const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
+            
+            const displayX = e.clientX - rect.left - dragOffset.x;
+            const displayY = e.clientY - rect.top - dragOffset.y;
+            
+            // Convert back to original coordinates
+            const newX = Math.round(displayX * scaleX);
+            const newY = Math.round(displayY * scaleY);
+            
+            // Send update to server
+            socket.emit('token:move', {
+                tokenId: selectedToken.id,
+                x: newX,
+                y: newY
+            });
+            
+            isDragging = false;
+            selectedToken = null;
+            
+            // Clear proximity pulses
+            clearProximityPulse();
+            
+            // Clean up event listeners
+            document.removeEventListener('mousemove', handleTokenDrag);
+            document.removeEventListener('mouseup', handleTokenDragEnd);
+            
+            // Reset visual position (will be updated by server response)
+            const tokenEl = document.querySelector(`[data-token-id="${selectedToken?.id}"]`);
+            if (tokenEl) {
+                tokenEl.style.cursor = 'grab';
+            }
+        }
+        
+        function updateTokensList() {
+            if (tokens.length === 0) {
+                tokensList.innerHTML = '<p>No tokens placed yet</p>';
+                return;
+            }
+            
+            tokensList.innerHTML = tokens.map(token => `
+                <div class="token-item">
+                    <div class="token-info">
+                        <div class="token-color" style="background-color: ${token.color}"></div>
+                        <div>
+                            <strong>${token.name}</strong> ${token.faction ? `(${token.faction})` : ''}<br>
+                            <small>HP: ${token.hp || 0} | ATK: ${token.attack || 0} | CTR: ${token.counterattack || 0}</small><br>
+                            <small>Pos: (${token.x}, ${token.y})</small>
+                            ${token.special ? `<br><small>Special: ${token.special}</small>` : ''}
+                        </div>
+                    </div>
+                    <button onclick="removeToken(${token.id})" style="background: #f44336;">Remove</button>
+                </div>
+            `).join('');
+        }
+        
+        function removeToken(tokenId) {
+            socket.emit('token:remove', tokenId);
+        }
+        
+        
+        function showStatus(message) {
+            status.textContent = message;
+            status.style.display = 'block';
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+        
+        function showTokenCreator(clientX, clientY, mapX, mapY) {
+            const creator = document.getElementById('tokenCreator');
+            const mapContainer = document.querySelector('.map-container');
+            const rect = mapContainer.getBoundingClientRect();
+            
+            // Position the creator near the click point but keep it within bounds
+            let left = clientX - rect.left + 10;
+            let top = clientY - rect.top + 10;
+            
+            // Keep creator within map bounds
+            if (left + 250 > mapContainer.clientWidth) {
+                left = clientX - rect.left - 260;
+            }
+            if (top + 300 > mapContainer.clientHeight) {
+                top = clientY - rect.top - 310;
+            }
+            
+            creator.style.left = left + 'px';
+            creator.style.top = top + 'px';
+            creator.style.display = 'block';
+            
+            pendingTokenLocation = { x: mapX, y: mapY };
+            
+            // Focus on the name input
+            document.getElementById('floatingTokenName').focus();
+        }
+        
+        function hideTokenCreator() {
+            document.getElementById('tokenCreator').style.display = 'none';
+            clearTokenCreatorForm();
+            pendingTokenLocation = null;
+        }
+        
+        function clearTokenCreatorForm() {
+            document.getElementById('floatingTokenName').value = '';
+            document.getElementById('floatingTokenFaction').value = '';
+            document.getElementById('floatingTokenHP').value = '';
+            document.getElementById('floatingTokenAttack').value = '';
+            document.getElementById('floatingTokenCounterattack').value = '';
+            document.getElementById('floatingTokenSpecial').value = '';
+            document.getElementById('floatingTokenNotes').value = '';
+            document.getElementById('floatingTokenColor').value = '#FF0000';
+        }
+        
+        // Token creator event handlers
+        document.getElementById('createTokenBtn').addEventListener('click', () => {
+            if (!pendingTokenLocation) return;
+            
+            const name = document.getElementById('floatingTokenName').value.trim() || `Token ${tokens.length + 1}`;
+            const faction = document.getElementById('floatingTokenFaction').value;
+            const hp = parseInt(document.getElementById('floatingTokenHP').value) || 0;
+            const attack = validateDiceNotation(document.getElementById('floatingTokenAttack').value.trim()) || '0';
+            const counterattack = validateDiceNotation(document.getElementById('floatingTokenCounterattack').value.trim()) || '0';
+            const special = document.getElementById('floatingTokenSpecial').value.trim();
+            const notes = document.getElementById('floatingTokenNotes').value.trim();
+            const color = document.getElementById('floatingTokenColor').value;
+            
+            socket.emit('token:place', {
+                x: pendingTokenLocation.x,
+                y: pendingTokenLocation.y,
+                name: name,
+                faction: faction,
+                hp: hp,
+                attack: attack,
+                counterattack: counterattack,
+                special: special,
+                notes: notes,
+                color: color
+            });
+            
+            hideTokenCreator();
+        });
+        
+        document.getElementById('cancelTokenBtn').addEventListener('click', () => {
+            hideTokenCreator();
+        });
+        
+        function showRadialPool(pool, centerX, centerY, originalPoolElement = null) {
+            hideRadialPool(); // Remove any existing radial display
+            
+            const radius = 60; // Radius for token positioning
+            // Calculate zone radius based on pool size to accommodate multiple rings
+            const maxRings = Math.ceil(pool.length / 12);
+            const zoneRadius = Math.max(80, radius + (maxRings - 1) * 30 + 20); // 20px padding
+            
+            // Create radial container
+            const radialEl = document.createElement('div');
+            radialEl.className = 'radial-pool';
+            radialEl.id = 'radialPool';
+            radialEl.style.left = centerX + 'px';
+            radialEl.style.top = centerY + 'px';
+            
+            // Create hover zone (invisible circle for easy interaction)
+            const zoneEl = document.createElement('div');
+            zoneEl.className = 'radial-zone';
+            zoneEl.style.width = (zoneRadius * 2) + 'px';
+            zoneEl.style.height = (zoneRadius * 2) + 'px';
+            zoneEl.style.left = '0px';
+            zoneEl.style.top = '0px';
+            
+            // Add mouse leave handler to hide after delay (unless dragging)
+            let hideTimeout;
+            zoneEl.addEventListener('mouseleave', (e) => {
+                // Don't hide if mouse is moving to a radial token
+                if (!isDraggingFromPool && !e.relatedTarget?.classList.contains('radial-token')) {
+                    hideTimeout = setTimeout(() => {
+                        hideRadialPool();
+                    }, 500);
+                }
+            });
+            
+            zoneEl.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+            });
+            
+            // Add drag functionality to the radial zone to move entire pool
+            zoneEl.addEventListener('mousedown', (e) => {
+                // Only handle drag if not clicking on a radial token
+                if (e.target.classList.contains('radial-token')) {
+                    return; // Let the radial token handle its own events
+                }
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('Radial zone mousedown detected');
+                
+                const startX = e.clientX;
+                const startY = e.clientY;
+                let dragStarted = false;
+                
+                const gameMapRect = gameMap.getBoundingClientRect();
+                const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
+                const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
+                
+                // Calculate pool center in original coordinates
+                const poolCenterX = pool.reduce((sum, token) => sum + token.x, 0) / pool.length;
+                const poolCenterY = pool.reduce((sum, token) => sum + token.y, 0) / pool.length;
+                
+                const handleMouseMove = (moveE) => {
+                    const dx = moveE.clientX - startX;
+                    const dy = moveE.clientY - startY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Only start dragging if moved more than 5 pixels
+                    if (distance > 5 && !dragStarted) {
+                        console.log('Starting radial pool drag');
+                        dragStarted = true;
+                        isDragging = true;
+                        // Preserve pinned tooltips before clearing
+                        preservedPinnedTokens = new Set(pinnedTooltipTokenIds);
+                        console.log('Preserving pinned tooltips before radial drag:', preservedPinnedTokens);
+                        hideTokenTooltip(); // Clear tooltips when dragging
+                        radialEl.style.cursor = 'grabbing';
+                        clearTimeout(hideTimeout); // Don't hide during drag
+                        
+                        // Hide the original pool element during radial drag
+                        if (originalPoolElement) {
+                            originalPoolElement.style.display = 'none';
+                            originalPoolElement.dataset.hiddenForRadialDrag = 'true';
+                            console.log('Hiding pool element during radial drag');
+                        } else {
+                            console.log('No original pool element provided to hide');
+                        }
+                    }
+                    
+                    if (dragStarted) {
+                        // Move radial display visually
+                        const newCenterX = moveE.clientX - gameMapRect.left;
+                        const newCenterY = moveE.clientY - gameMapRect.top;
+                        radialEl.style.left = newCenterX + 'px';
+                        radialEl.style.top = newCenterY + 'px';
+                    }
+                };
+                
+                const handleMouseUp = (upE) => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    
+                    if (dragStarted) {
+                        // Calculate new center position in original coordinates
+                        const newCenterX = (upE.clientX - gameMapRect.left) / (gameMap.clientWidth / gameMap.naturalWidth);
+                        const newCenterY = (upE.clientY - gameMapRect.top) / (gameMap.clientHeight / gameMap.naturalHeight);
+                        
+                        // Calculate offset from old center
+                        const offsetX = newCenterX - poolCenterX;
+                        const offsetY = newCenterY - poolCenterY;
+                        
+                        console.log('Moving radial pool:', pool.length, 'tokens by offset:', offsetX, offsetY);
+                        
+                        // Move all tokens in the pool
+                        pool.forEach(token => {
+                            const newX = Math.round(token.x + offsetX);
+                            const newY = Math.round(token.y + offsetY);
+                            
+                            console.log('Moving token', token.name, 'from', token.x, token.y, 'to', newX, newY);
+                            
+                            socket.emit('token:move', {
+                                tokenId: token.id,
+                                x: newX,
+                                y: newY
+                            });
+                        });
+                        
+                        isDragging = false;
+                        hideRadialPool(); // Hide radial display after successful drag
+                        
+                        // Restore any hidden pool elements
+                        const hiddenPools = document.querySelectorAll('.token-pool[data-hidden-for-radial-drag="true"]');
+                        hiddenPools.forEach(poolEl => {
+                            poolEl.style.display = '';
+                            delete poolEl.dataset.hiddenForRadialDrag;
+                        });
+                    }
+                    
+                    radialEl.style.cursor = '';
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
+            
+            // Add center indicator 
+            const centerEl = document.createElement('div');
+            centerEl.className = 'radial-center';
+            centerEl.style.position = 'absolute';
+            centerEl.style.left = '0px';
+            centerEl.style.top = '0px';
+            centerEl.style.width = '20px';
+            centerEl.style.height = '20px';
+            centerEl.style.borderRadius = '50%';
+            centerEl.style.backgroundColor = '#fff';
+            centerEl.style.border = '2px solid #666';
+            centerEl.style.transform = 'translate(-50%, -50%)';
+            centerEl.style.pointerEvents = 'none'; // Don't interfere with drag
+            centerEl.textContent = pool.length.toString();
+            centerEl.style.fontSize = '12px';
+            centerEl.style.display = 'flex';
+            centerEl.style.alignItems = 'center';
+            centerEl.style.justifyContent = 'center';
+            centerEl.style.fontWeight = 'bold';
+            
+            radialEl.appendChild(zoneEl);
+            radialEl.appendChild(centerEl);
+            
+            // Position tokens in circles (multiple rings for large pools)
+            const maxTokensPerRing = 12; // Maximum tokens per ring to avoid overlap
+            
+            pool.forEach((token, index) => {
+                // Calculate which ring this token belongs to
+                const ring = Math.floor(index / maxTokensPerRing);
+                const positionInRing = index % maxTokensPerRing;
+                const tokensInThisRing = Math.min(maxTokensPerRing, pool.length - (ring * maxTokensPerRing));
+                
+                // Calculate radius for this ring (inner rings are smaller)
+                const ringRadius = radius + (ring * 30); // 30px spacing between rings
+                
+                // Calculate angle for this token in its ring
+                const angle = (positionInRing / tokensInThisRing) * 2 * Math.PI;
+                const tokenX = Math.cos(angle) * ringRadius;
+                const tokenY = Math.sin(angle) * ringRadius;
+                
+                const tokenEl = document.createElement('div');
+                tokenEl.className = 'radial-token';
+                tokenEl.style.backgroundColor = token.color;
+                tokenEl.style.left = tokenX + 'px';
+                tokenEl.style.top = tokenY + 'px';
+                tokenEl.dataset.tokenId = token.id;
+                
+                // Add hover tooltip for radial tokens
+                let tooltipTimeout;
+                tokenEl.addEventListener('mouseenter', (e) => {
+                    if (!pinnedTooltipTokenIds.has(token.id)) {
+                        tooltipTimeout = setTimeout(() => {
+                            showTokenTooltip(token, e.clientX, e.clientY);
+                        }, 300);
+                    }
+                });
+                
+                tokenEl.addEventListener('mouseleave', () => {
+                    clearTimeout(tooltipTimeout);
+                    if (!pinnedTooltipTokenIds.has(token.id)) {
+                        hideSpecificTokenTooltip(token.id);
+                    }
+                });
+                
+                // Add click handler for pinning tooltips in pools
+                tokenEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    if (pinnedTooltipTokenIds.has(token.id)) {
+                        // Unpin this specific tooltip
+                        pinnedTooltipTokenIds.delete(token.id);
+                        hideSpecificTokenTooltip(token.id);
+                    } else {
+                        // Pin this tooltip with smart positioning for pools
+                        pinnedTooltipTokenIds.add(token.id);
+                        showPoolTooltip(token, e.clientX, e.clientY, true);
+                    }
+                });
+                
+                // Add drag functionality for moving out of pool
+                tokenEl.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    isDraggingFromPool = true;
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    let hasMoved = false;
+                    let dragGhost = null;
+                    
+                    const handleDrag = (e) => {
+                        const distance = Math.sqrt(
+                            Math.pow(e.clientX - startX, 2) + 
+                            Math.pow(e.clientY - startY, 2)
+                        );
+                        
+                        if (distance > 10 && !hasMoved) {
+                            hasMoved = true;
+                            // Create ghost token that follows cursor
+                            dragGhost = tokenEl.cloneNode(true);
+                            dragGhost.style.position = 'absolute';
+                            dragGhost.style.zIndex = '999';
+                            dragGhost.style.pointerEvents = 'none';
+                            dragGhost.style.opacity = '0.8';
+                            
+                            // Start ghost at current token position
+                            const rect = mapContainer.getBoundingClientRect();
+                            dragGhost.style.left = (e.clientX - rect.left - 10) + 'px';
+                            dragGhost.style.top = (e.clientY - rect.top - 10) + 'px';
+                            
+                            mapContainer.appendChild(dragGhost);
+                        }
+                        
+                        if (hasMoved && dragGhost) {
+                            const rect = mapContainer.getBoundingClientRect();
+                            const ghostX = e.clientX - rect.left - 10;
+                            const ghostY = e.clientY - rect.top - 10;
+                            
+                            dragGhost.style.left = ghostX + 'px';
+                            dragGhost.style.top = ghostY + 'px';
+                            
+                            // Check proximity for pool joining
+                            updateProximityPulse(ghostX + 10, ghostY + 10, token.id);
+                        }
+                    };
+                    
+                    const handleDragEnd = (e) => {
+                        document.removeEventListener('mousemove', handleDrag);
+                        document.removeEventListener('mouseup', handleDragEnd);
+                        
+                        isDraggingFromPool = false;
+                        clearProximityPulse();
+                        
+                        if (dragGhost) {
+                            dragGhost.remove();
+                        }
+                        
+                        if (hasMoved) {
+                            // Calculate new position for token
+                            const rect = gameMap.getBoundingClientRect();
+                            const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
+                            const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
+                            
+                            const newX = Math.round((e.clientX - rect.left) * scaleX);
+                            const newY = Math.round((e.clientY - rect.top) * scaleY);
+                            
+                            // Update token position on server
+                            socket.emit('token:move', {
+                                tokenId: token.id,
+                                x: newX,
+                                y: newY
+                            });
+                            
+                            hideRadialPool();
+                            showStatus(`Moved "${token.name}" out of pool`);
+                        }
+                    };
+                    
+                    document.addEventListener('mousemove', handleDrag);
+                    document.addEventListener('mouseup', handleDragEnd);
+                });
+                
+                radialEl.appendChild(tokenEl);
+            });
+            
+            mapContainer.appendChild(radialEl);
+        }
+        
+        function hideRadialPool() {
+            const existing = document.getElementById('radialPool');
+            if (existing) {
+                existing.remove();
+            }
+        }
+        
+        function validateDiceNotation(input) {
+            if (!input) return '';
+            
+            // Allow simple numbers
+            if (/^\d+$/.test(input)) {
+                return input;
+            }
+            
+            // Allow dice notation like 1d6, 2d8+3, 1d4-1, etc.
+            if (/^\d*d\d+([+-]\d+)?$/i.test(input)) {
+                return input.toLowerCase();
+            }
+            
+            // Invalid format - return as-is but could add warning
+            return input;
+        }
+        
+        function updateFactionOptions() {
+            // Collect all factions from current tokens
+            tokens.forEach(token => {
+                if (token.faction && token.faction.trim()) {
+                    usedFactions.add(token.faction.trim());
+                }
+            });
+            
+            // Update the datalist
+            const datalist = document.getElementById('factionOptions');
+            datalist.innerHTML = '';
+            
+            Array.from(usedFactions).sort().forEach(faction => {
+                const option = document.createElement('option');
+                option.value = faction;
+                datalist.appendChild(option);
+            });
+        }
+        
+        function showTokenTooltip(token, clientX, clientY, pinned = false) {
+            const tooltipId = `tokenTooltip-${token.id}`;
+            
+            // Only remove existing tooltip if it's not pinned (for hover updates)
+            const existingTooltip = document.getElementById(tooltipId);
+            if (existingTooltip && !pinnedTooltipTokenIds.has(token.id)) {
+                existingTooltip.remove();
+            }
+            
+            // If tooltip already exists and is pinned, don't create a new one
+            if (existingTooltip && pinnedTooltipTokenIds.has(token.id)) {
+                return;
+            }
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'token-tooltip';
+            if (pinned) {
+                tooltip.classList.add('pinned');
+            }
+            tooltip.id = tooltipId;
+            
+            const attack = token.attack || '0';
+            const counterattack = token.counterattack || '0';
+            const hp = token.hp || 0;
+            const faction = token.faction || 'No faction';
+            const special = token.special || '';
+            const notes = token.notes || '';
+            
+            tooltip.innerHTML = `
+                <div class="name">${token.name}</div>
+                <div class="stat-line">
+                    <span class="stat-label">Faction:</span>
+                    <span>${faction}</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">HP:</span>
+                    <span>${hp}</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Attack:</span>
+                    <span>${attack}</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Counter:</span>
+                    <span>${counterattack}</span>
+                </div>
+                ${special ? `<div class="stat-line">
+                    <span class="stat-label">Special:</span>
+                    <span>${special}</span>
+                </div>` : ''}
+                ${notes ? `<div class="stat-line">
+                    <span class="stat-label">Notes:</span>
+                    <span>${notes}</span>
+                </div>` : ''}
+            `;
+            
+            // Smart positioning to avoid overlap with existing tooltips
+            let left = clientX + 10;
+            let top = clientY + 10;
+            
+            // Rough size estimates
+            const tooltipWidth = 200;
+            const tooltipHeight = 120 + (special ? 20 : 0) + (notes ? 20 : 0);
+            
+            // Offset for multiple tooltips (cascade effect)
+            const existingTooltips = document.querySelectorAll('.token-tooltip');
+            const offset = existingTooltips.length * 20; // 20px cascade per tooltip
+            left += offset;
+            top += offset;
+            
+            // Keep tooltip on screen
+            if (left + tooltipWidth > window.innerWidth) {
+                left = clientX - tooltipWidth - 10 - offset;
+            }
+            if (top + tooltipHeight > window.innerHeight) {
+                top = clientY - tooltipHeight - 10 - offset;
+            }
+            
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+            
+            document.body.appendChild(tooltip);
+        }
+        
+        function hideTokenTooltip() {
+            // Hide all tooltips
+            const tooltips = document.querySelectorAll('.token-tooltip');
+            tooltips.forEach(tooltip => tooltip.remove());
+            
+            // Remove pool tooltips container
+            if (poolTooltipsContainer) {
+                poolTooltipsContainer.remove();
+                poolTooltipsContainer = null;
+            }
+            
+            pinnedTooltipTokenIds.clear();
+            tooltipPositions.clear(); // Clear position tracking
+            console.log('Cleared all tooltip positions');
+        }
+        
+        function hideSpecificTokenTooltip(tokenId) {
+            const tooltip = document.getElementById(`tokenTooltip-${tokenId}`);
+            if (tooltip) {
+                tooltip.remove();
+                // Clean up position tracking
+                tooltipPositions.delete(tokenId);
+                console.log('Removed tooltip position for token:', tokenId);
+                
+                // Re-organize remaining pool tooltips to fill gaps
+                reorganizePoolTooltips();
+            }
+        }
+        
+        function ensurePoolTooltipsContainer() {
+            if (!poolTooltipsContainer) {
+                poolTooltipsContainer = document.createElement('div');
+                poolTooltipsContainer.className = 'pool-tooltips-container';
+                poolTooltipsContainer.id = 'poolTooltipsContainer';
+                document.body.appendChild(poolTooltipsContainer);
+            }
+            return poolTooltipsContainer;
+        }
+        
+        function reorganizePoolTooltips() {
+            const poolTooltips = document.querySelectorAll('.token-tooltip.pool-tooltip');
+            if (poolTooltips.length === 0) {
+                // Remove container if no tooltips
+                if (poolTooltipsContainer) {
+                    poolTooltipsContainer.remove();
+                    poolTooltipsContainer = null;
+                }
+                return;
+            }
+            
+            ensurePoolTooltipsContainer();
+            
+            console.log('Reorganizing', poolTooltips.length, 'pool tooltips');
+            
+            // Reset all positions and reassign - no positioning needed in container
+            tooltipPositions.clear();
+            
+            // Re-append tooltips to container in order (they'll naturally stack)
+            poolTooltips.forEach((tooltip, index) => {
+                const tokenId = parseInt(tooltip.id.replace('tokenTooltip-', ''));
+                tooltipPositions.set(tokenId, index);
+                
+                // Move tooltip to container if not already there
+                if (tooltip.parentNode !== poolTooltipsContainer) {
+                    poolTooltipsContainer.appendChild(tooltip);
+                }
+            });
+        }
+        
+        function restorePinnedTooltips() {
+            // Restore all pinned tooltips after drag ends
+            pinnedTooltipTokenIds.forEach(tokenId => {
+                const token = tokens.find(t => t.id === tokenId);
+                if (token) {
+                    // Position tooltip near the token's current location
+                    const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+                    const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+                    const rect = gameMap.getBoundingClientRect();
+                    
+                    const screenX = rect.left + (token.x * scaleX) + 20;
+                    const screenY = rect.top + (token.y * scaleY) + 20;
+                    
+                    showTokenTooltip(token, screenX, screenY, true);
+                }
+            });
+        }
+        
+        function showPoolTooltip(token, clientX, clientY, pinned = false) {
+            // Special positioning for pool tooltips to avoid overlap
+            const tooltipId = `tokenTooltip-${token.id}`;
+            
+            // Remove existing tooltip (we'll recreate it with proper positioning)
+            const existingTooltip = document.getElementById(tooltipId);
+            if (existingTooltip) {
+                existingTooltip.remove();
+            }
+            
+            // Calculate smart positioning by finding the first available slot
+            const sidebarWidth = 250; // Width of each tooltip
+            const sidebarSpacing = 20; // Space between tooltips
+            const tooltipHeight = 150; // Approximate height of each tooltip
+            
+            // Use manual position tracking for more reliable placement
+            const usedPositions = new Set(tooltipPositions.values());
+            console.log('Current tooltip positions map:', tooltipPositions);
+            console.log('Used positions for tooltip placement:', usedPositions);
+            
+            // Find first available position
+            let position = 0;
+            while (usedPositions.has(position)) {
+                position++;
+            }
+            
+            // Store this tooltip's position
+            tooltipPositions.set(token.id, position);
+            console.log('Assigned position', position, 'to token', token.id);
+            
+            // Ensure container exists
+            const container = ensurePoolTooltipsContainer();
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'token-tooltip pool-tooltip';
+            if (pinned) {
+                tooltip.classList.add('pinned');
+            }
+            tooltip.id = tooltipId;
+            
+            const attack = token.attack || '0';
+            const counterattack = token.counterattack || '0';
+            const hp = token.hp || 0;
+            const faction = token.faction || 'No faction';
+            const special = token.special || '';
+            const notes = token.notes || '';
+            
+            tooltip.innerHTML = `
+                <div class="tooltip-header">
+                    <div class="name">${token.name}</div>
+                    <button class="close-tooltip-btn" title="Unpin tooltip">×</button>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Faction:</span>
+                    <span>${faction}</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">HP:</span>
+                    <span>${hp}</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Attack:</span>
+                    <span>${attack}</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Counter:</span>
+                    <span>${counterattack}</span>
+                </div>
+                ${special ? `<div class="stat-line">
+                    <span class="stat-label">Special:</span>
+                    <span>${special}</span>
+                </div>` : ''}
+                ${notes ? `<div class="stat-line">
+                    <span class="stat-label">Notes:</span>
+                    <span>${notes}</span>
+                </div>` : ''}
+            `;
+            
+            // Add close button functionality
+            const closeBtn = tooltip.querySelector('.close-tooltip-btn');
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                pinnedTooltipTokenIds.delete(token.id);
+                hideSpecificTokenTooltip(token.id);
+                console.log('Closed pool tooltip for token:', token.name);
+            });
+            
+            // Append to scrollable container
+            container.appendChild(tooltip);
+        }
+        
+        function updateProximityPulse(dragX, dragY, dragTokenId) {
+            const threshold = 30; // pixels - same as pool grouping threshold
+            
+            // Clear existing pulses
+            clearProximityPulse();
+            
+            // Check proximity to other tokens and pools
+            const allElements = document.querySelectorAll('.token, .token-pool');
+            
+            allElements.forEach(el => {
+                // Skip the token being dragged
+                if (el.dataset.tokenId && parseInt(el.dataset.tokenId) === dragTokenId) {
+                    return;
+                }
+                
+                const rect = el.getBoundingClientRect();
+                const mapRect = mapContainer.getBoundingClientRect();
+                
+                const elCenterX = rect.left - mapRect.left + rect.width / 2;
+                const elCenterY = rect.top - mapRect.top + rect.height / 2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(dragX - elCenterX, 2) + 
+                    Math.pow(dragY - elCenterY, 2)
+                );
+                
+                if (distance <= threshold) {
+                    el.classList.add('proximity-pulse');
+                }
+            });
+        }
+        
+        function clearProximityPulse() {
+            document.querySelectorAll('.proximity-pulse').forEach(el => {
+                el.classList.remove('proximity-pulse');
+            });
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            debouncedRenderTokens();
+        });
+        
+        // Handle image load
+        gameMap.addEventListener('load', () => {
+            debouncedRenderTokens();
+        });
+    </script>
+</body>
+</html>
