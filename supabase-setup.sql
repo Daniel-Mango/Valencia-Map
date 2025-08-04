@@ -1,6 +1,6 @@
 -- Create tokens table for D&D map
 CREATE TABLE IF NOT EXISTS tokens (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     x INTEGER NOT NULL,
     y INTEGER NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS tokens (
     notes TEXT,
     color VARCHAR(7) NOT NULL DEFAULT '#FF0000',
     icon_url TEXT,
-    player_id VARCHAR(255),
+    playerid VARCHAR(255),
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

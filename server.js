@@ -52,7 +52,7 @@ io.on('connection', (socket) => {
       special: data.special || '',
       notes: data.notes || '',
       color: data.color || '#FF0000',
-      playerId: socket.id,
+      playerid: socket.id,
       timestamp: new Date().toISOString()
     };
     
@@ -60,9 +60,16 @@ io.on('connection', (socket) => {
     
     // Save to Supabase
     try {
-      await supabase.from('tokens').insert([token]);
+      const { data, error } = await supabase.from('tokens').insert([token]);
+      if (error) {
+        console.log('Supabase insert error:', error);
+        console.log('Token data:', JSON.stringify(token, null, 2));
+      } else {
+        console.log('✅ Token saved to database:', token.name);
+      }
     } catch (error) {
-      console.log('Supabase error (will continue with local storage):', error.message);
+      console.log('Supabase exception:', error.message);
+      console.log('Token data:', JSON.stringify(token, null, 2));
     }
     
     // Broadcast to all players
@@ -125,7 +132,7 @@ async function loadTokensFromDatabase() {
     const { data, error } = await supabase.from('tokens').select('*');
     if (data && !error) {
       tokens = data;
-      tokenIdCounter = Math.max(...tokens.map(t => t.id), 0) + 1;
+      tokenIdCounter = tokens.length > 0 ? Math.max(...tokens.map(t => t.id)) + 1 : 1;
       console.log(`Loaded ${tokens.length} tokens from database`);
     }
   } catch (error) {
