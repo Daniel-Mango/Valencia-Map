@@ -75,6 +75,15 @@
             box-shadow: 0 0 15px #ffd700;
         }
         
+        .token.movable-token {
+            border-color: #ffeb3b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 8px rgba(255, 235, 59, 0.4);
+        }
+        
+        .token.movable-token:hover {
+            box-shadow: 0 4px 12px rgba(255,255,255,0.3), 0 0 12px rgba(255, 235, 59, 0.6);
+        }
+        
         .token-pool {
             position: absolute;
             width: 30px;
@@ -97,6 +106,11 @@
         
         .token-pool:hover {
             transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        .token-pool.ghostable-pool {
+            border-color: #ffeb3b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 8px rgba(255, 235, 59, 0.6);
         }
         
         .radial-pool {
@@ -135,6 +149,15 @@
         
         .radial-token:active {
             cursor: grabbing;
+        }
+        
+        .radial-token.ghostable-radial-token {
+            border-color: #ffeb3b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 6px rgba(255, 235, 59, 0.5);
+        }
+        
+        .radial-token.ghostable-radial-token:hover {
+            box-shadow: 0 4px 12px rgba(255,255,255,0.5), 0 0 8px rgba(255, 235, 59, 0.7);
         }
         
         .controls {
@@ -452,23 +475,980 @@
                 gap: 10px;
             }
         }
+
+        /* User Controls */
+        .user-controls {
+            position: absolute;
+            top: 10px;
+            right: 80px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #userRoleDisplay {
+            color: #ccc;
+            font-size: 14px;
+            padding: 4px 8px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 4px;
+        }
+
+        .dm-login-btn, .dm-logout-btn {
+            padding: 6px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .dm-login-btn {
+            background: #d4af37;
+            color: #000;
+        }
+
+        .dm-login-btn:hover {
+            background: #ffd700;
+            transform: translateY(-1px);
+        }
+
+        .dm-logout-btn {
+            background: #666;
+            color: #fff;
+        }
+
+        .dm-logout-btn:hover {
+            background: #888;
+            transform: translateY(-1px);
+        }
+
+        /* DM Login Panel */
+        .dm-login-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .dm-login-content {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+            border: 2px solid #444;
+            min-width: 300px;
+        }
+
+        .dm-login-content h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .password-input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        #dmPasswordInput {
+            width: 100%;
+            padding: 10px 40px 10px 10px;
+            font-size: 16px;
+            border: 2px solid #444;
+            border-radius: 6px;
+            background: #1a1a1a;
+            color: #fff;
+            box-sizing: border-box;
+        }
+
+        #dmPasswordInput:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .password-peek-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+
+        .password-peek-btn:hover {
+            color: #ffd700;
+        }
+
+        .dm-login-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .dm-login-buttons button {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        #dmLoginSubmit {
+            background: #d4af37;
+            color: #000;
+        }
+
+        #dmLoginSubmit:hover {
+            background: #ffd700;
+        }
+
+        #dmLoginCancel {
+            background: #666;
+            color: #fff;
+        }
+
+        #dmLoginCancel:hover {
+            background: #888;
+        }
+
+        .password-error {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .dm-only {
+            display: none;
+        }
+
+        .dm-only.show {
+            display: inline-block;
+        }
+
+        /* HP Display on Tokens */
+        .token-hp {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+            border: 1px solid #444;
+        }
+
+        .token-hp.healthy { border-color: #4CAF50; color: #4CAF50; }
+        .token-hp.wounded { border-color: #FF9800; color: #FF9800; }
+        .token-hp.critical { border-color: #f44336; color: #f44336; }
+
+        /* Token Editor Modal */
+        .token-editor-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .token-editor-content {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+            border: 2px solid #444;
+            min-width: 400px;
+            max-width: 500px;
+        }
+
+        .token-editor-content h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .token-editor-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row label {
+            color: #ccc;
+            width: 80px;
+            font-size: 14px;
+        }
+
+        .form-row input, .form-row textarea {
+            flex: 1;
+            padding: 6px 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .form-row input:focus, .form-row textarea:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .hp-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .hp-controls span {
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .token-editor-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .token-editor-buttons button {
+            padding: 8px 16px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+        }
+
+        .remove-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .remove-btn:hover {
+            background: #da190b;
+        }
+
+        .cancel-btn {
+            background: #666;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #888;
+        }
+
+        /* Faction Stats Tooltip */
+        .faction-stats-widget {
+            position: fixed;
+            bottom: 0;
+            left: 20px;
+            width: 320px;
+            background: rgba(30, 30, 30, 0.95);
+            border: 2px solid #444;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            z-index: 1500;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        .faction-stats-widget.collapsed {
+            transform: translateY(calc(100% - 40px));
+        }
+
+        .faction-stats-header {
+            background: #2a2a2a;
+            padding: 10px 15px;
+            border-bottom: 1px solid #444;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .faction-stats-header:hover {
+            background: #333;
+        }
+
+        .faction-stats-title {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .faction-toggle-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .faction-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .faction-stats-content {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .faction-stats-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .faction-stats-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .faction-stats-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .faction-stats-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .faction-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(68, 68, 68, 0.5);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .faction-item:last-child {
+            border-bottom: none;
+        }
+
+        .faction-item:nth-child(even) {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .faction-name {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faction-edit-btn {
+            background: none;
+            border: 1px solid #666;
+            color: #ccc;
+            padding: 4px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .faction-edit-btn:hover {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .faction-add-btn {
+            position: absolute;
+            top: 8px;
+            right: 40px;
+            background: none;
+            border: 1px solid #666;
+            color: #ccc;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .faction-add-btn:hover {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            color: white;
+        }
+
+        .faction-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .faction-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .faction-stat-label {
+            color: #ccc;
+            font-weight: normal;
+        }
+
+        .faction-stat-value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .faction-hp {
+            grid-column: 1 / -1;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .faction-hp .faction-stat-value {
+            color: #4CAF50;
+        }
+
+        .faction-hp.wounded .faction-stat-value {
+            color: #FF9800;
+        }
+
+        .faction-hp.critical .faction-stat-value {
+            color: #f44336;
+        }
+
+        .no-factions {
+            padding: 20px 15px;
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Faction Editor Modal */
+        .faction-editor-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .faction-editor-content {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+            border: 2px solid #444;
+            min-width: 400px;
+            max-width: 500px;
+        }
+
+        .faction-editor-content h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .faction-editor-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faction-form-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .faction-form-row label {
+            color: #ccc;
+            width: 90px;
+            font-size: 14px;
+        }
+
+        .faction-form-row input {
+            flex: 1;
+            padding: 6px 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .faction-form-row input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .faction-hp-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .faction-hp-controls span {
+            color: #ccc;
+            font-weight: bold;
+        }
+
+        .faction-editor-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .faction-editor-buttons button {
+            padding: 8px 16px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        /* Move Proposals System */
+        .ghost-token {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            cursor: grab;
+            transform: translate(-50%, -50%);
+            z-index: 12;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+            opacity: 0.7;
+            pointer-events: all;
+        }
+
+        .ghost-token:hover {
+            opacity: 0.9;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .ghost-radial-token {
+            opacity: 0.7;
+            border: 2px dashed #fff !important;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+        
+        .ghost-radial-token:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+        }
+        
+        .ghost-approve-btn, .ghost-reject-btn, .ghost-cancel-btn {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: none;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        
+        .ghost-approve-btn {
+            background: #4CAF50;
+            color: white;
+            top: -8px;
+            right: -8px;
+        }
+        
+        .ghost-reject-btn {
+            background: #f44336;
+            color: white;
+            top: -8px;
+            left: -8px;
+        }
+        
+        .ghost-cancel-btn {
+            background: #ff9800;
+            color: white;
+            top: -8px;
+            right: -8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .ghost-token:hover .ghost-cancel-btn,
+        .ghost-radial-token:hover .ghost-cancel-btn {
+            opacity: 1;
+        }
+        
+        .ghost-approve-btn:hover, .ghost-reject-btn:hover, .ghost-cancel-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .movable-token {
+            border: 2px solid #ffd700 !important;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.6) !important;
+        }
+
+        .proposal-arrow {
+            position: absolute;
+            pointer-events: none;
+            z-index: 11;
+        }
+
+        .approval-popup {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            border: 2px solid #ffd700;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .approval-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .approve-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .approve-btn:hover {
+            background: #45a049;
+            transform: scale(1.1);
+        }
+
+        .reject-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .reject-btn:hover {
+            background: #da190b;
+            transform: scale(1.1);
+        }
+
+        /* Movable Factions Configuration Modal */
+        .movable-factions-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .movable-factions-content {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+            border: 2px solid #444;
+            min-width: 400px;
+            max-width: 500px;
+        }
+
+        .movable-factions-content h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .faction-checkbox-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .faction-checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 4px 0;
+            background: #333;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .faction-checkbox-item:hover {
+            background: #444;
+        }
+
+        .faction-checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .faction-checkbox-item label {
+            color: #fff;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .movable-factions-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
+    <!-- Token Editor Modal (DM only) -->
+    <div id="tokenEditor" class="token-editor-modal hidden">
+        <div class="token-editor-content">
+            <h3>🛠️ Edit Token</h3>
+            <div class="token-editor-form">
+                <div class="form-row">
+                    <label>Name:</label>
+                    <input type="text" id="editTokenName" placeholder="Token Name">
+                </div>
+                <div class="form-row">
+                    <label>Faction:</label>
+                    <input type="text" id="editTokenFaction" placeholder="Faction">
+                </div>
+                <div class="form-row">
+                    <label>HP:</label>
+                    <div class="hp-controls">
+                        <input type="number" id="editTokenCurrentHP" placeholder="Current" min="0" style="width: 70px;">
+                        <span>/</span>
+                        <input type="number" id="editTokenMaxHP" placeholder="Max" min="0" style="width: 70px;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>Attack:</label>
+                    <input type="text" id="editTokenAttack" placeholder="1d6">
+                </div>
+                <div class="form-row">
+                    <label>Counter:</label>
+                    <input type="text" id="editTokenCounterattack" placeholder="1d4">
+                </div>
+                <div class="form-row">
+                    <label>Special:</label>
+                    <input type="text" id="editTokenSpecial" placeholder="Special abilities">
+                </div>
+                <div class="form-row">
+                    <label>Notes:</label>
+                    <textarea id="editTokenNotes" placeholder="Notes" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Color:</label>
+                    <input type="color" id="editTokenColor" value="#FF0000">
+                </div>
+                <div class="form-row">
+                    <label>
+                        <input type="checkbox" id="editTokenVisible" checked>
+                        Visible to Players
+                    </label>
+                </div>
+            </div>
+            <div class="token-editor-buttons">
+                <button id="saveTokenBtn" class="save-btn">💾 Save</button>
+                <button id="removeTokenBtn" class="remove-btn">🗑️ Remove</button>
+                <button id="cancelEditBtn" class="cancel-btn">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DM Login Panel (Hidden by default) -->
+    <div id="dmLoginPanel" class="dm-login-panel hidden">
+        <div class="dm-login-content">
+            <h3>🎲 DM Login</h3>
+            <div class="password-input-container">
+                <input type="password" id="dmPasswordInput" placeholder="DM Password" autocomplete="off">
+                <button id="passwordPeekBtn" class="password-peek-btn">👁️</button>
+            </div>
+            <div class="dm-login-buttons">
+                <button id="dmLoginSubmit">Login as DM</button>
+                <button id="dmLoginCancel">Cancel</button>
+            </div>
+            <div id="dmLoginError" class="password-error"></div>
+        </div>
+    </div>
+
+    <!-- Faction Editor Modal (DM only) -->
+    <div id="factionEditor" class="faction-editor-modal hidden">
+        <div class="faction-editor-content">
+            <h3>⚔️ Edit Faction Stats</h3>
+            <div class="faction-editor-form">
+                <div class="faction-form-row">
+                    <label>Name:</label>
+                    <input type="text" id="editFactionName" placeholder="Faction Name">
+                </div>
+                <div class="faction-form-row">
+                    <label>HP:</label>
+                    <div class="faction-hp-controls">
+                        <input type="number" id="editFactionCurrentHP" placeholder="Current" min="0" style="width: 70px;">
+                        <span>/</span>
+                        <input type="number" id="editFactionMaxHP" placeholder="Max" min="0" style="width: 70px;">
+                    </div>
+                </div>
+                <div class="faction-form-row">
+                    <label>Force:</label>
+                    <input type="number" id="editFactionForce" placeholder="Force" min="0">
+                </div>
+                <div class="faction-form-row">
+                    <label>Wealth:</label>
+                    <input type="number" id="editFactionWealth" placeholder="Wealth" min="0">
+                </div>
+                <div class="faction-form-row">
+                    <label>Cunning:</label>
+                    <input type="number" id="editFactionCunning" placeholder="Cunning" min="0">
+                </div>
+                <div class="faction-form-row">
+                    <label>Magic:</label>
+                    <input type="text" id="editFactionMagic" placeholder="e.g. None, Low, Medium, High">
+                </div>
+                <div class="faction-form-row">
+                    <label>Treasure:</label>
+                    <input type="number" id="editFactionTreasure" placeholder="Treasure" min="0">
+                </div>
+                <div class="faction-form-row">
+                    <label>
+                        <input type="checkbox" id="editFactionVisible">
+                        Visible to Players
+                    </label>
+                </div>
+            </div>
+            <div class="faction-editor-buttons">
+                <button id="saveFactionBtn" class="save-btn">💾 Save</button>
+                <button id="deleteFactionBtn" class="remove-btn">🗑️ Delete</button>
+                <button id="cancelFactionEditBtn" class="cancel-btn">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movable Factions Configuration Modal (DM only) -->
+    <div id="movableFactionsModal" class="movable-factions-modal hidden">
+        <div class="movable-factions-content">
+            <h3>🎯 Configure Player Move Permissions</h3>
+            <p style="color: #ccc; text-align: center; margin-bottom: 15px;">Select which factions players can propose moves for:</p>
+            <div class="faction-checkbox-list" id="movableFactionsContainer">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="movable-factions-buttons">
+                <button id="saveMovableFactionsBtn" class="save-btn">💾 Save Configuration</button>
+                <button id="cancelMovableFactionsBtn" class="cancel-btn">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Faction Stats Widget -->
+    <div id="factionStatsWidget" class="faction-stats-widget collapsed">
+        <div class="faction-stats-header" id="factionStatsHeader">
+            <div class="faction-stats-title">⚔️ Faction Stats</div>
+            <button class="faction-add-btn dm-only" id="factionAddBtn" title="Add New Faction">+</button>
+            <button class="faction-toggle-btn" id="factionToggleBtn">▲</button>
+        </div>
+        <div class="faction-stats-content" id="factionStatsContent">
+            <div class="no-factions">No faction data available</div>
+        </div>
+    </div>
+
     <div class="container">
         <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px; z-index: 1000;">
-            v1.5.3
+            v1.7.9
         </div>
         <div class="header">
             <h1>🐉 D&D Campaign Map</h1>
             <p>Click on the map to place tokens, or select existing tokens to move them</p>
+            <div class="user-controls">
+                <span id="userRoleDisplay">Player Mode</span>
+                <button id="dmLoginBtn" class="dm-login-btn">🎲 DM Login</button>
+                <button id="dmLogoutBtn" class="dm-logout-btn hidden">🚪 Logout DM</button>
+            </div>
         </div>
         
         <div class="map-container">
             <img id="gameMap" src="map.webp" alt="Campaign Map">
             <div class="mode-toggle">
                 <button class="mode-btn active" id="viewMode">View Mode</button>
-                <button class="mode-btn" id="createMode">Create Mode</button>
+                <button class="mode-btn dm-only" id="createMode">Create Mode</button>
+                <button class="mode-btn dm-only" id="manageMode">Manage Mode</button>
             </div>
             <div class="floating-token-creator" id="tokenCreator">
                 <h4 style="margin-top: 0;">Create Token</h4>
@@ -493,6 +1473,10 @@
                     <option value="#FF00FF">Purple (Magic)</option>
                     <option value="#FFA500">Orange (NPC)</option>
                 </select>
+                <label class="dm-only show">
+                    <input type="checkbox" id="floatingTokenVisible" checked>
+                    Visible to Players
+                </label>
                 <div class="button-row">
                     <button class="create-btn" id="createTokenBtn">Create</button>
                     <button class="cancel-btn" id="cancelTokenBtn">Cancel</button>
@@ -500,11 +1484,14 @@
             </div>
         </div>
         
-        <div class="controls">            
+        <div class="controls dm-only">            
             <button id="clearAllTokens">Clear All Tokens</button>
+            <button onclick="showMovableFactionsModal()" style="background: #4CAF50;">Configure Movable Factions</button>
+            <button onclick="clearAllProposals()" style="background: #f44336;">Clear All Proposals</button>
+            <button onclick="approveAllProposals()" style="background: #2196F3;">Approve All Proposals</button>
         </div>
         
-        <div class="token-list">
+        <div class="token-list dm-only">
             <h3>Active Tokens</h3>
             <div id="tokensList">
                 <p>No tokens placed yet</p>
@@ -516,7 +1503,220 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
+        // User role and authentication
+        let userRole = 'player'; // Default to player
+        let socket = io(); // Connect immediately as player
+
+        // Initialize as player by default
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDMLoginHandlers();
+            updateUIForRole();
+            
+            // Wait for socket connection before authenticating
+            socket.on('connect', function() {
+                console.log('Socket connected, authenticating as player...');
+                socket.emit('authenticate', { password: '', role: 'player' });
+            });
+        });
+
+        // Handle authentication result
+        socket.on('auth_result', function(result) {
+            console.log('Auth result:', result);
+            if (result.success) {
+                userRole = result.role;
+                console.log('Authenticated as:', userRole);
+                // Request tokens after successful authentication
+                socket.emit('set_role', { role: userRole });
+            }
+        });
+
+        function setupDMLoginHandlers() {
+            const dmLoginBtn = document.getElementById('dmLoginBtn');
+            const dmLogoutBtn = document.getElementById('dmLogoutBtn');
+            const dmLoginPanel = document.getElementById('dmLoginPanel');
+            const dmPasswordInput = document.getElementById('dmPasswordInput');
+            const dmLoginSubmit = document.getElementById('dmLoginSubmit');
+            const dmLoginCancel = document.getElementById('dmLoginCancel');
+            const passwordPeekBtn = document.getElementById('passwordPeekBtn');
+
+            // Show DM login panel
+            dmLoginBtn.addEventListener('click', function() {
+                dmLoginPanel.classList.remove('hidden');
+                dmPasswordInput.focus();
+            });
+
+            // Hide DM login panel
+            dmLoginCancel.addEventListener('click', function() {
+                dmLoginPanel.classList.add('hidden');
+                dmPasswordInput.value = '';
+                clearDMLoginError();
+            });
+
+            // Submit DM login
+            dmLoginSubmit.addEventListener('click', function() {
+                const password = dmPasswordInput.value.trim();
+                if (password) {
+                    authenticateDM(password);
+                } else {
+                    showDMLoginError('Please enter a password');
+                }
+            });
+
+            // Enter key submits DM login
+            dmPasswordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    dmLoginSubmit.click();
+                }
+            });
+
+            // Password peek functionality
+            passwordPeekBtn.addEventListener('mousedown', function() {
+                dmPasswordInput.type = 'text';
+            });
+
+            passwordPeekBtn.addEventListener('mouseup', function() {
+                dmPasswordInput.type = 'password';
+            });
+
+            passwordPeekBtn.addEventListener('mouseleave', function() {
+                dmPasswordInput.type = 'password';
+            });
+
+            // Logout DM
+            dmLogoutBtn.addEventListener('click', function() {
+                logoutDM();
+            });
+        }
+
+        function authenticateDM(password) {
+            clearDMLoginError();
+            
+            socket.emit('authenticate', { password, role: 'dm' });
+            
+            socket.on('auth_result', function(result) {
+                if (result.success && result.role === 'dm') {
+                    userRole = 'dm';
+                    document.getElementById('dmLoginPanel').classList.add('hidden');
+                    document.getElementById('dmPasswordInput').value = '';
+                    // Request fresh token list for DM role
+                    socket.emit('request_tokens');
+                    updateUIForRole();
+                } else {
+                    showDMLoginError(result.message || 'Invalid DM password');
+                }
+            });
+        }
+
+        function logoutDM() {
+            userRole = 'player';
+            socket.emit('authenticate', { password: '', role: 'player' });
+            // Request fresh token list for player role
+            socket.emit('request_tokens');
+            updateUIForRole();
+        }
+
+        function updateUIForRole() {
+            const roleDisplay = document.getElementById('userRoleDisplay');
+            const dmLoginBtn = document.getElementById('dmLoginBtn');
+            const dmLogoutBtn = document.getElementById('dmLogoutBtn');
+            const dmOnlyElements = document.querySelectorAll('.dm-only');
+
+            if (userRole === 'dm') {
+                roleDisplay.textContent = 'DM Mode';
+                roleDisplay.style.color = '#ffd700';
+                dmLoginBtn.classList.add('hidden');
+                dmLogoutBtn.classList.remove('hidden');
+                
+                // Show all DM-only elements
+                dmOnlyElements.forEach(el => el.classList.add('show'));
+                
+                console.log('DM mode activated');
+            } else {
+                roleDisplay.textContent = 'Player Mode';
+                roleDisplay.style.color = '#ccc';
+                dmLoginBtn.classList.remove('hidden');
+                dmLogoutBtn.classList.add('hidden');
+                
+                // Hide all DM-only elements
+                dmOnlyElements.forEach(el => el.classList.remove('show'));
+                
+                console.log('Player mode activated');
+            }
+        }
+
+        function showDMLoginError(message) {
+            const errorDiv = document.getElementById('dmLoginError');
+            errorDiv.textContent = message;
+        }
+
+        function clearDMLoginError() {
+            const errorDiv = document.getElementById('dmLoginError');
+            errorDiv.textContent = '';
+        }
+
+        // Token Editor Functions
+        let currentEditingToken = null;
+
+        function showTokenEditor(token) {
+            currentEditingToken = token;
+            const modal = document.getElementById('tokenEditor');
+            
+            // Populate form with token data
+            document.getElementById('editTokenName').value = token.name || '';
+            document.getElementById('editTokenFaction').value = token.faction || '';
+            document.getElementById('editTokenCurrentHP').value = token.current_hp || 0;
+            document.getElementById('editTokenMaxHP').value = token.max_hp || 0;
+            document.getElementById('editTokenAttack').value = token.attack || '';
+            document.getElementById('editTokenCounterattack').value = token.counterattack || '';
+            document.getElementById('editTokenSpecial').value = token.special || '';
+            document.getElementById('editTokenNotes').value = token.notes || '';
+            document.getElementById('editTokenColor').value = token.color || '#FF0000';
+            document.getElementById('editTokenVisible').checked = token.visible_to_players !== false;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideTokenEditor() {
+            document.getElementById('tokenEditor').classList.add('hidden');
+            currentEditingToken = null;
+        }
+
+        // Token Editor Event Handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('saveTokenBtn').addEventListener('click', function() {
+                if (!currentEditingToken) return;
+                
+                const updatedToken = {
+                    id: currentEditingToken.id,
+                    name: document.getElementById('editTokenName').value.trim(),
+                    faction: document.getElementById('editTokenFaction').value.trim(),
+                    current_hp: parseInt(document.getElementById('editTokenCurrentHP').value) || 0,
+                    max_hp: parseInt(document.getElementById('editTokenMaxHP').value) || 0,
+                    attack: document.getElementById('editTokenAttack').value.trim(),
+                    counterattack: document.getElementById('editTokenCounterattack').value.trim(),
+                    special: document.getElementById('editTokenSpecial').value.trim(),
+                    notes: document.getElementById('editTokenNotes').value.trim(),
+                    color: document.getElementById('editTokenColor').value,
+                    visible_to_players: document.getElementById('editTokenVisible').checked
+                };
+                
+                socket.emit('token:update', updatedToken);
+                hideTokenEditor();
+            });
+
+            document.getElementById('removeTokenBtn').addEventListener('click', function() {
+                if (!currentEditingToken) return;
+                
+                if (confirm(`Remove "${currentEditingToken.name}"?`)) {
+                    socket.emit('token:remove', currentEditingToken.id);
+                    hideTokenEditor();
+                }
+            });
+
+            document.getElementById('cancelEditBtn').addEventListener('click', function() {
+                hideTokenEditor();
+            });
+        });
         
         const gameMap = document.getElementById('gameMap');
         const mapContainer = document.querySelector('.map-container');
@@ -564,6 +1764,51 @@
                 debouncedRenderTokens();
                 updateTokensList();
                 showStatus(`Token moved to (${data.x}, ${data.y})`);
+                
+                // Check if this moved token has any active proposals (arrows need updating)
+                const hasProposal = moveProposals.some(p => p.token_id === data.tokenId);
+                if (hasProposal) {
+                    // Check if the moved token is now in a pool where its ghost is positioned
+                    const tokenPool = getTokenPool(data.tokenId);
+                    if (tokenPool) {
+                        const poolCenter = calculatePoolCenter(tokenPool);
+                        const ghostProposal = moveProposals.find(p => p.token_id === data.tokenId);
+                        
+                        if (ghostProposal && poolCenter) {
+                            // Check if ghost is positioned at/near the pool center
+                            const distance = Math.sqrt(
+                                Math.pow(ghostProposal.proposed_x - poolCenter.x, 2) + 
+                                Math.pow(ghostProposal.proposed_y - poolCenter.y, 2)
+                            );
+                            
+                            // If ghost is within 50 pixels of pool center, auto-delete it
+                            if (distance < 50) {
+                                console.log('🎯 Auto-deleting ghost as root token joined its target pool');
+                                socket.emit('move_proposal:cancel', ghostProposal.id);
+                                return; // Don't re-render ghosts yet, wait for deletion confirmation
+                            }
+                        }
+                    }
+                    
+                    console.log('🎯 Token with proposal moved, re-rendering ghosts');
+                    renderGhostTokens(); // Force immediate re-render of ghosts/arrows
+                }
+            }
+        });
+
+        socket.on('token:updated', (updatedToken) => {
+            const tokenIndex = tokens.findIndex(t => t.id === updatedToken.id);
+            if (tokenIndex !== -1) {
+                tokens[tokenIndex] = updatedToken;
+                debouncedRenderTokens();
+                updateTokensList();
+                showStatus(`"${updatedToken.name}" updated`);
+            } else {
+                // Token doesn't exist locally (became visible) - add it
+                tokens.push(updatedToken);
+                debouncedRenderTokens();
+                updateTokensList();
+                showStatus(`"${updatedToken.name}" is now visible`);
             }
         });
         
@@ -580,8 +1825,7 @@
         // Mode toggle handlers
         document.getElementById('viewMode').addEventListener('click', () => {
             currentMode = 'view';
-            document.getElementById('viewMode').classList.add('active');
-            document.getElementById('createMode').classList.remove('active');
+            setActiveMode('viewMode');
             hideTokenCreator();
             gameMap.style.cursor = 'default';
             hideTokenTooltip();
@@ -589,11 +1833,24 @@
         
         document.getElementById('createMode').addEventListener('click', () => {
             currentMode = 'create';
-            document.getElementById('createMode').classList.add('active');
-            document.getElementById('viewMode').classList.remove('active');
+            setActiveMode('createMode');
             gameMap.style.cursor = 'crosshair';
             hideTokenTooltip();
         });
+
+        document.getElementById('manageMode').addEventListener('click', () => {
+            currentMode = 'manage';
+            setActiveMode('manageMode');
+            gameMap.style.cursor = 'default';
+            hideTokenTooltip();
+        });
+
+        function setActiveMode(activeId) {
+            // Remove active class from all mode buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            // Add active class to the selected mode
+            document.getElementById(activeId).classList.add('active');
+        }
         
         // Map click handler
         gameMap.addEventListener('click', (e) => {
@@ -676,8 +1933,11 @@
             const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
             const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
             
-            // Group tokens by proximity (within 30 pixels)
-            const tokenPools = groupTokensByProximity(tokens, 30, scaleX, scaleY);
+            // Filter tokens based on visibility to current user role
+            const visibleTokens = userRole === 'dm' ? tokens : tokens.filter(t => t.visible_to_players !== false);
+            
+            // Group visible tokens by proximity (within 30 pixels)
+            const tokenPools = groupTokensByProximity(visibleTokens, 30, scaleX, scaleY);
             
             tokenPools.forEach(pool => {
                 if (pool.length === 1) {
@@ -743,18 +2003,18 @@
             }, 150); // Increased delay to ensure DOM is fully updated
         }
         
-        function groupTokensByProximity(tokens, threshold, scaleX, scaleY) {
+        function groupTokensByProximity(tokensToGroup, threshold, scaleX, scaleY) {
             const pools = [];
             const processed = new Set();
             
-            tokens.forEach(token => {
+            tokensToGroup.forEach(token => {
                 if (processed.has(token.id)) return;
                 
                 const pool = [token];
                 processed.add(token.id);
                 
                 // Find nearby tokens
-                tokens.forEach(otherToken => {
+                tokensToGroup.forEach(otherToken => {
                     if (processed.has(otherToken.id)) return;
                     
                     const distance = Math.sqrt(
@@ -777,11 +2037,19 @@
         function renderSingleToken(token, scaleX, scaleY) {
             const tokenEl = document.createElement('div');
             tokenEl.className = 'token';
+            
+            // Add movable-token class if players can propose moves for this token
+            if (userRole === 'player' && isTokenMovableByPlayers(token)) {
+                tokenEl.classList.add('movable-token');
+            }
+            
             tokenEl.style.backgroundColor = token.color;
             tokenEl.style.left = (token.x * scaleX) + 'px';
             tokenEl.style.top = (token.y * scaleY) + 'px';
             // Remove native tooltip to avoid covering custom tooltip
             tokenEl.dataset.tokenId = token.id;
+            
+            // HP display removed from token - now only in tooltip
             
             if (selectedToken && selectedToken.id === token.id) {
                 tokenEl.classList.add('selected');
@@ -804,16 +2072,19 @@
                 }
             });
             
-            // Add click handler for pinning tooltips
+            // Add click handler for pinning tooltips and manage mode
             tokenEl.addEventListener('click', (e) => {
-                if (currentMode === 'view' && !isDragging) {
+                e.stopPropagation();
+                
+                if (currentMode === 'manage' && userRole === 'dm') {
+                    // Manage mode - show token editor
+                    showTokenEditor(token);
+                } else if (currentMode === 'view' && !isDragging) {
                     // Skip click if token was just dragged
                     if (recentlyDraggedTokens.has(token.id)) {
                         console.log('Ignoring click after drag for token:', token.name, token.id);
                         return;
                     }
-                    
-                    e.stopPropagation();
                     
                     if (pinnedTooltipTokenIds.has(token.id)) {
                         // Unpin this specific tooltip
@@ -832,6 +2103,21 @@
                 e.preventDefault();
                 e.stopPropagation();
                 
+                // Check if this should be handled as a player move proposal
+                if (handlePlayerTokenDrag(token, e)) {
+                    return; // Player move proposal handled
+                }
+                
+                // Only allow DM drag functionality for DM users in view mode
+                if (userRole !== 'dm') {
+                    return; // Only DMs can drag tokens normally
+                }
+                
+                if (currentMode === 'create' || currentMode === 'manage') {
+                    return; // DM shouldn't drag in create/manage modes (they have other functions)
+                }
+                
+                // Original DM drag functionality
                 selectedToken = token;
                 const startX = e.clientX;
                 const startY = e.clientY;
@@ -898,6 +2184,12 @@
             
             const poolEl = document.createElement('div');
             poolEl.className = 'token-pool';
+            
+            // Add yellow indicator if pool contains ghostable tokens
+            if (userRole === 'player' && doesPoolContainGhostableTokens(pool)) {
+                poolEl.classList.add('ghostable-pool');
+            }
+            
             poolEl.style.left = (centerX * scaleX) + 'px';
             poolEl.style.top = (centerY * scaleY) + 'px';
             poolEl.textContent = pool.length.toString();
@@ -1095,7 +2387,7 @@
                         <div class="token-color" style="background-color: ${token.color}"></div>
                         <div>
                             <strong>${token.name}</strong> ${token.faction ? `(${token.faction})` : ''}<br>
-                            <small>HP: ${token.hp || 0} | ATK: ${token.attack || 0} | CTR: ${token.counterattack || 0}</small><br>
+                            <small>HP: ${token.current_hp || token.hp || 0}/${token.max_hp || token.hp || 0} | ATK: ${token.attack || 0} | CTR: ${token.counterattack || 0}</small><br>
                             <small>Pos: (${token.x}, ${token.y})</small>
                             ${token.special ? `<br><small>Special: ${token.special}</small>` : ''}
                         </div>
@@ -1160,6 +2452,7 @@
             document.getElementById('floatingTokenSpecial').value = '';
             document.getElementById('floatingTokenNotes').value = '';
             document.getElementById('floatingTokenColor').value = '#FF0000';
+            document.getElementById('floatingTokenVisible').checked = true;
         }
         
         // Token creator event handlers
@@ -1181,11 +2474,14 @@
                 name: name,
                 faction: faction,
                 hp: hp,
+                max_hp: hp, // Set max_hp to initial HP
+                current_hp: hp, // Set current_hp to initial HP
                 attack: attack,
                 counterattack: counterattack,
                 special: special,
                 notes: notes,
-                color: color
+                color: color,
+                visible_to_players: document.getElementById('floatingTokenVisible').checked
             });
             
             hideTokenCreator();
@@ -1198,9 +2494,43 @@
         function showRadialPool(pool, centerX, centerY, originalPoolElement = null) {
             hideRadialPool(); // Remove any existing radial display
             
+            // Include ghost tokens that are positioned at this pool location
+            // Only show ghosts whose proposed position is near this pool's center
+            const poolCenter = calculatePoolCenter(pool);
+            const poolGhosts = [];
+            
+            if (poolCenter) {
+                moveProposals.forEach(proposal => {
+                    // Calculate distance from ghost's proposed position to pool center
+                    const distance = Math.sqrt(
+                        Math.pow(proposal.proposed_x - poolCenter.x, 2) + 
+                        Math.pow(proposal.proposed_y - poolCenter.y, 2)
+                    );
+                    
+                    // If ghost is positioned near this pool (within 50 pixels), include it
+                    if (distance < 50) {
+                        poolGhosts.push(proposal);
+                    }
+                });
+            }
+            
+            // Create combined list: original tokens + ghost representations
+            const displayItems = [...pool];
+            poolGhosts.forEach(proposal => {
+                const originalToken = tokens.find(t => t.id === proposal.token_id);
+                if (originalToken) {
+                    displayItems.push({
+                        ...originalToken,
+                        isGhost: true,
+                        ghostProposal: proposal,
+                        name: `${originalToken.name} (Ghost)`
+                    });
+                }
+            });
+            
             const radius = 60; // Radius for token positioning
-            // Calculate zone radius based on pool size to accommodate multiple rings
-            const maxRings = Math.ceil(pool.length / 12);
+            // Calculate zone radius based on combined item count
+            const maxRings = Math.ceil(displayItems.length / 12);
             const zoneRadius = Math.max(80, radius + (maxRings - 1) * 30 + 20); // 20px padding
             
             // Create radial container
@@ -1353,7 +2683,7 @@
             centerEl.style.border = '2px solid #666';
             centerEl.style.transform = 'translate(-50%, -50%)';
             centerEl.style.pointerEvents = 'none'; // Don't interfere with drag
-            centerEl.textContent = pool.length.toString();
+            centerEl.textContent = displayItems.length.toString();
             centerEl.style.fontSize = '12px';
             centerEl.style.display = 'flex';
             centerEl.style.alignItems = 'center';
@@ -1366,11 +2696,11 @@
             // Position tokens in circles (multiple rings for large pools)
             const maxTokensPerRing = 12; // Maximum tokens per ring to avoid overlap
             
-            pool.forEach((token, index) => {
-                // Calculate which ring this token belongs to
+            displayItems.forEach((item, index) => {
+                // Calculate which ring this item belongs to
                 const ring = Math.floor(index / maxTokensPerRing);
                 const positionInRing = index % maxTokensPerRing;
-                const tokensInThisRing = Math.min(maxTokensPerRing, pool.length - (ring * maxTokensPerRing));
+                const tokensInThisRing = Math.min(maxTokensPerRing, displayItems.length - (ring * maxTokensPerRing));
                 
                 // Calculate radius for this ring (inner rings are smaller)
                 const ringRadius = radius + (ring * 30); // 30px spacing between rings
@@ -1381,48 +2711,121 @@
                 const tokenY = Math.sin(angle) * ringRadius;
                 
                 const tokenEl = document.createElement('div');
-                tokenEl.className = 'radial-token';
-                tokenEl.style.backgroundColor = token.color;
+                tokenEl.className = item.isGhost ? 'radial-token ghost-radial-token' : 'radial-token';
+                
+                // Add ghostable class if player can move this token (but not for ghost tokens)
+                if (!item.isGhost && userRole === 'player' && isTokenMovableByPlayers(item)) {
+                    tokenEl.classList.add('ghostable-radial-token');
+                }
+                
+                tokenEl.style.backgroundColor = item.color;
                 tokenEl.style.left = tokenX + 'px';
                 tokenEl.style.top = tokenY + 'px';
-                tokenEl.dataset.tokenId = token.id;
+                tokenEl.dataset.tokenId = item.id;
                 
-                // Add hover tooltip for radial tokens
-                let tooltipTimeout;
-                tokenEl.addEventListener('mouseenter', (e) => {
-                    if (!pinnedTooltipTokenIds.has(token.id)) {
-                        tooltipTimeout = setTimeout(() => {
-                            showTokenTooltip(token, e.clientX, e.clientY);
-                        }, 300);
+                // Ghost tokens get special styling and buttons
+                if (item.isGhost) {
+                    tokenEl.style.opacity = '0.7';
+                    tokenEl.style.border = '2px dashed #fff';
+                    tokenEl.dataset.proposalId = item.ghostProposal.id;
+                    
+                    // Add appropriate action buttons for ghost tokens
+                    if (userRole === 'dm') {
+                        const approveBtn = document.createElement('button');
+                        approveBtn.className = 'ghost-approve-btn';
+                        approveBtn.innerHTML = '✓';
+                        approveBtn.title = 'Approve move';
+                        approveBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            socket.emit('move_proposal:approve', item.ghostProposal.id);
+                        };
+
+                        const rejectBtn = document.createElement('button');
+                        rejectBtn.className = 'ghost-reject-btn';
+                        rejectBtn.innerHTML = '✗';
+                        rejectBtn.title = 'Reject move';
+                        rejectBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            socket.emit('move_proposal:reject', item.ghostProposal.id);
+                        };
+
+                        tokenEl.appendChild(approveBtn);
+                        tokenEl.appendChild(rejectBtn);
+                    } else if (userRole === 'player') {
+                        const cancelBtn = document.createElement('button');
+                        cancelBtn.className = 'ghost-cancel-btn';
+                        cancelBtn.innerHTML = '✗';
+                        cancelBtn.title = 'Cancel move proposal';
+                        cancelBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            console.log('🎯 Player canceling proposal from pool:', item.ghostProposal.id);
+                            socket.emit('move_proposal:cancel', item.ghostProposal.id);
+                        };
+                        
+                        tokenEl.appendChild(cancelBtn);
                     }
-                });
+                }
                 
-                tokenEl.addEventListener('mouseleave', () => {
-                    clearTimeout(tooltipTimeout);
-                    if (!pinnedTooltipTokenIds.has(token.id)) {
-                        hideSpecificTokenTooltip(token.id);
-                    }
-                });
+                // Add hover tooltip for radial tokens (but not for ghost tokens)
+                if (!item.isGhost) {
+                    let tooltipTimeout;
+                    tokenEl.addEventListener('mouseenter', (e) => {
+                        if (!pinnedTooltipTokenIds.has(item.id)) {
+                            tooltipTimeout = setTimeout(() => {
+                                showTokenTooltip(item, e.clientX, e.clientY);
+                            }, 300);
+                        }
+                    });
+                    
+                    tokenEl.addEventListener('mouseleave', () => {
+                        clearTimeout(tooltipTimeout);
+                        if (!pinnedTooltipTokenIds.has(item.id)) {
+                            hideSpecificTokenTooltip(item.id);
+                        }
+                    });
+                }
                 
-                // Add click handler for pinning tooltips in pools
+                // Add click handler for pinning tooltips in pools and manage mode
                 tokenEl.addEventListener('click', (e) => {
                     e.stopPropagation();
                     
-                    if (pinnedTooltipTokenIds.has(token.id)) {
-                        // Unpin this specific tooltip
-                        pinnedTooltipTokenIds.delete(token.id);
-                        hideSpecificTokenTooltip(token.id);
+                    // Ghost tokens now use X/✓ buttons, no click action needed
+                    if (item.isGhost) {
+                        // Don't handle clicks on ghost tokens - buttons handle everything
+                        return; 
+                    } else if (currentMode === 'manage' && userRole === 'dm') {
+                        // Manage mode - show token editor
+                        showTokenEditor(item);
                     } else {
-                        // Pin this tooltip with smart positioning for pools
-                        pinnedTooltipTokenIds.add(token.id);
-                        showPoolTooltip(token, e.clientX, e.clientY, true);
+                        // View mode - handle tooltip pinning
+                        if (pinnedTooltipTokenIds.has(item.id)) {
+                            // Unpin this specific tooltip
+                            pinnedTooltipTokenIds.delete(item.id);
+                            hideSpecificTokenTooltip(item.id);
+                        } else {
+                            // Pin this tooltip with smart positioning for pools
+                            pinnedTooltipTokenIds.add(item.id);
+                            showPoolTooltip(item, e.clientX, e.clientY, true);
+                        }
                     }
                 });
                 
-                // Add drag functionality for moving out of pool
+                // Add drag functionality for moving out of pool (but not for ghost tokens)
                 tokenEl.addEventListener('mousedown', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    
+                    // Ghost tokens cannot be dragged
+                    if (item.isGhost) {
+                        return;
+                    }
+                    
+                    // Don't drag if clicking on action buttons
+                    if (e.target.classList.contains('ghost-approve-btn') || 
+                        e.target.classList.contains('ghost-reject-btn') || 
+                        e.target.classList.contains('ghost-cancel-btn')) {
+                        return;
+                    }
                     
                     isDraggingFromPool = true;
                     const startX = e.clientX;
@@ -1451,6 +2854,23 @@
                             dragGhost.style.top = (e.clientY - rect.top - 10) + 'px';
                             
                             mapContainer.appendChild(dragGhost);
+                            
+                            // For players dragging ghostable tokens, create a live arrow
+                            if (userRole === 'player' && isTokenMovableByPlayers(item)) {
+                                const pool = getTokenPool(item.id);
+                                const poolCenter = calculatePoolCenter(pool);
+                                
+                                // Create a source token object with correct coordinates
+                                const sourceToken = {
+                                    x: poolCenter ? poolCenter.x : item.x,
+                                    y: poolCenter ? poolCenter.y : item.y
+                                };
+                                
+                                createProposalArrow(item.id, sourceToken, {
+                                    x: e.clientX - rect.left,
+                                    y: e.clientY - rect.top
+                                });
+                            }
                         }
                         
                         if (hasMoved && dragGhost) {
@@ -1461,8 +2881,25 @@
                             dragGhost.style.left = ghostX + 'px';
                             dragGhost.style.top = ghostY + 'px';
                             
+                            // Update arrow for ghostable tokens
+                            if (userRole === 'player' && isTokenMovableByPlayers(item)) {
+                                const pool = getTokenPool(item.id);
+                                const poolCenter = calculatePoolCenter(pool);
+                                
+                                // Create a source token object with correct coordinates
+                                const sourceToken = {
+                                    x: poolCenter ? poolCenter.x : item.x,
+                                    y: poolCenter ? poolCenter.y : item.y
+                                };
+                                
+                                updateProposalArrow(item.id, sourceToken, {
+                                    x: e.clientX - rect.left,
+                                    y: e.clientY - rect.top
+                                });
+                            }
+                            
                             // Check proximity for pool joining
-                            updateProximityPulse(ghostX + 10, ghostY + 10, token.id);
+                            updateProximityPulse(ghostX + 10, ghostY + 10, item.id);
                         }
                     };
                     
@@ -1477,24 +2914,75 @@
                             dragGhost.remove();
                         }
                         
+                        // Clean up any orphaned temporary arrows from this drag operation
+                        setTimeout(() => {
+                            cleanupAllArrows();
+                            // Re-render tracked ghost tokens to restore proper arrows
+                            renderGhostTokens();
+                        }, 100); // Small delay to ensure drag operations complete
+                        
+                        // Clean up temporary arrow for ghostable tokens
+                        if (hasMoved && userRole === 'player' && isTokenMovableByPlayers(item)) {
+                            const arrowData = proposalArrows.get(item.id);
+                            if (arrowData) {
+                                arrowData.arrow.remove();
+                                proposalArrows.delete(item.id);
+                            }
+                        }
+                        
                         if (hasMoved) {
-                            // Calculate new position for token
-                            const rect = gameMap.getBoundingClientRect();
-                            const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
-                            const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
-                            
-                            const newX = Math.round((e.clientX - rect.left) * scaleX);
-                            const newY = Math.round((e.clientY - rect.top) * scaleY);
-                            
-                            // Update token position on server
-                            socket.emit('token:move', {
-                                tokenId: token.id,
-                                x: newX,
-                                y: newY
-                            });
-                            
-                            hideRadialPool();
-                            showStatus(`Moved "${token.name}" out of pool`);
+                            // Check if this should create a ghost proposal or move the token
+                            if (userRole === 'player' && isTokenMovableByPlayers(item)) {
+                                // Create ghost proposal from pool
+                                const rect = gameMap.getBoundingClientRect();
+                                const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
+                                const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
+                                
+                                const proposedX = Math.round((e.clientX - rect.left) * scaleX);
+                                const proposedY = Math.round((e.clientY - rect.top) * scaleY);
+                                
+                                // Check if a proposal already exists for this token
+                                const existingProposal = moveProposals.find(p => p.token_id === item.id);
+                                if (existingProposal) {
+                                    console.log('🎯 Proposal already exists for pooled token:', item.name);
+                                    return;
+                                }
+                                
+                                // Create the proposal - original position will be pool center
+                                const pool = getTokenPool(item.id);
+                                const poolCenter = calculatePoolCenter(pool);
+                                
+                                const proposalData = {
+                                    token_id: item.id,
+                                    original_x: Math.round(poolCenter ? poolCenter.x : item.x),
+                                    original_y: Math.round(poolCenter ? poolCenter.y : item.y),
+                                    proposed_x: proposedX,
+                                    proposed_y: proposedY
+                                };
+                                
+                                socket.emit('move_proposal:create', proposalData);
+                                
+                                // Don't hide pool immediately - let socket handler manage it
+                                showStatus(`Ghost proposal created for "${item.name}"`);
+                            } else {
+                                // DM or non-ghostable token - normal movement
+                                const rect = gameMap.getBoundingClientRect();
+                                const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
+                                const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
+                                
+                                const newX = Math.round((e.clientX - rect.left) * scaleX);
+                                const newY = Math.round((e.clientY - rect.top) * scaleY);
+                                
+                                // Update token position on server
+                                socket.emit('token:move', {
+                                    tokenId: item.id,
+                                    x: newX,
+                                    y: newY
+                                });
+                                
+                                hideRadialPool();
+                                showStatus(`Moved "${item.name}" out of pool`);
+                            }
                         }
                     };
                     
@@ -1513,6 +3001,15 @@
             if (existing) {
                 existing.remove();
             }
+            // Clean up any temporary arrows that might remain from radial drag operations
+            const temporaryArrows = document.querySelectorAll('.proposal-arrow');
+            temporaryArrows.forEach(arrow => {
+                // Only remove arrows that aren't part of the tracked proposal arrows
+                const isTracked = Array.from(proposalArrows.values()).some(data => data.arrow === arrow);
+                if (!isTracked) {
+                    arrow.remove();
+                }
+            });
         }
         
         function validateDiceNotation(input) {
@@ -1574,7 +3071,9 @@
             
             const attack = token.attack || '0';
             const counterattack = token.counterattack || '0';
-            const hp = token.hp || 0;
+            const currentHp = token.current_hp !== null ? token.current_hp : (token.hp || 0);
+            const maxHp = token.max_hp || token.hp || 0;
+            const hpDisplay = maxHp > 0 ? `${currentHp}/${maxHp}` : '0';
             const faction = token.faction || 'No faction';
             const special = token.special || '';
             const notes = token.notes || '';
@@ -1587,7 +3086,7 @@
                 </div>
                 <div class="stat-line">
                     <span class="stat-label">HP:</span>
-                    <span>${hp}</span>
+                    <span>${hpDisplay}</span>
                 </div>
                 <div class="stat-line">
                     <span class="stat-label">Attack:</span>
@@ -1764,7 +3263,9 @@
             
             const attack = token.attack || '0';
             const counterattack = token.counterattack || '0';
-            const hp = token.hp || 0;
+            const currentHp = token.current_hp !== null ? token.current_hp : (token.hp || 0);
+            const maxHp = token.max_hp || token.hp || 0;
+            const hpDisplay = maxHp > 0 ? `${currentHp}/${maxHp}` : '0';
             const faction = token.faction || 'No faction';
             const special = token.special || '';
             const notes = token.notes || '';
@@ -1780,7 +3281,7 @@
                 </div>
                 <div class="stat-line">
                     <span class="stat-label">HP:</span>
-                    <span>${hp}</span>
+                    <span>${hpDisplay}</span>
                 </div>
                 <div class="stat-line">
                     <span class="stat-label">Attack:</span>
@@ -1860,6 +3361,1041 @@
         gameMap.addEventListener('load', () => {
             debouncedRenderTokens();
         });
+
+        // Faction Stats Management
+        let factionStats = [];
+        let currentEditingFaction = null;
+        let factionStatsCollapsed = true;
+
+        // Faction Stats Socket Handlers
+        socket.on('faction_stats:load', (loadedFactionStats) => {
+            factionStats = loadedFactionStats;
+            console.log('Loaded faction stats:', factionStats);
+            updateFactionStatsDisplay();
+        });
+
+        socket.on('faction_stats:updated', (updatedFaction) => {
+            const existingIndex = factionStats.findIndex(f => f.faction_name === updatedFaction.faction_name);
+            if (existingIndex !== -1) {
+                factionStats[existingIndex] = updatedFaction;
+            } else {
+                factionStats.push(updatedFaction);
+            }
+            updateFactionStatsDisplay();
+            showStatus(`Faction "${updatedFaction.faction_name}" updated`);
+        });
+
+        socket.on('faction_stats:deleted', (factionName) => {
+            factionStats = factionStats.filter(f => f.faction_name !== factionName);
+            updateFactionStatsDisplay();
+            showStatus(`Faction "${factionName}" deleted`);
+        });
+
+        // Faction Stats Widget Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const factionStatsHeader = document.getElementById('factionStatsHeader');
+            const factionToggleBtn = document.getElementById('factionToggleBtn');
+            const factionStatsWidget = document.getElementById('factionStatsWidget');
+            const factionAddBtn = document.getElementById('factionAddBtn');
+
+            // Toggle widget on header click (but not on button clicks)
+            factionStatsHeader.addEventListener('click', function(e) {
+                // Don't toggle if clicking the add button or toggle button
+                if (e.target === factionAddBtn || e.target === factionToggleBtn) {
+                    return;
+                }
+                
+                factionStatsCollapsed = !factionStatsCollapsed;
+                
+                if (factionStatsCollapsed) {
+                    factionStatsWidget.classList.add('collapsed');
+                    factionToggleBtn.textContent = '▲';
+                } else {
+                    factionStatsWidget.classList.remove('collapsed');
+                    factionToggleBtn.textContent = '▼';
+                }
+            });
+
+            // Toggle button click
+            factionToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                factionStatsCollapsed = !factionStatsCollapsed;
+                
+                if (factionStatsCollapsed) {
+                    factionStatsWidget.classList.add('collapsed');
+                    factionToggleBtn.textContent = '▲';
+                } else {
+                    factionStatsWidget.classList.remove('collapsed');
+                    factionToggleBtn.textContent = '▼';
+                }
+            });
+
+            // Add faction button click
+            factionAddBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showFactionEditor(); // Call with no faction name to create new
+            });
+
+            // Faction Editor Event Handlers
+            document.getElementById('saveFactionBtn').addEventListener('click', saveFactionStats);
+            document.getElementById('deleteFactionBtn').addEventListener('click', deleteFactionStats);
+            document.getElementById('cancelFactionEditBtn').addEventListener('click', hideFactionEditor);
+            
+            // Movable Factions Modal Event Handlers
+            document.getElementById('saveMovableFactionsBtn').addEventListener('click', hideMovableFactionsModal);
+            document.getElementById('cancelMovableFactionsBtn').addEventListener('click', hideMovableFactionsModal);
+        });
+
+        function updateFactionStatsDisplay() {
+            const content = document.getElementById('factionStatsContent');
+            const addBtn = document.getElementById('factionAddBtn');
+            
+            // Filter factions based on user role
+            const visibleFactions = userRole === 'dm' ? factionStats : factionStats.filter(f => f.is_visible);
+            
+            // Show/hide the + button based on whether factions exist and user role
+            if (userRole === 'dm') {
+                if (visibleFactions.length === 0) {
+                    addBtn.style.display = 'block';
+                } else {
+                    addBtn.style.display = 'none';
+                }
+            } else {
+                addBtn.style.display = 'none';
+            }
+            
+            if (visibleFactions.length === 0) {
+                content.innerHTML = '<div class="no-factions">No faction data available</div>';
+                return;
+            }
+
+            // Show only the first (most recent) faction
+            const faction = visibleFactions[0];
+            const hpPercentage = faction.max_hp > 0 ? (faction.current_hp / faction.max_hp) : 1;
+            let hpClass = 'faction-hp';
+            if (hpPercentage <= 0.25) hpClass += ' critical';
+            else if (hpPercentage <= 0.5) hpClass += ' wounded';
+
+            const editButton = userRole === 'dm' ? 
+                `<button class="faction-edit-btn" onclick="showFactionEditor('${faction.faction_name}')" title="Edit Faction">⚙️</button>` : '';
+
+            content.innerHTML = `
+                <div class="faction-item">
+                    <div class="faction-name">
+                        <span>${faction.faction_name}</span>
+                        ${editButton}
+                    </div>
+                    <div class="faction-stats-grid">
+                        <div class="faction-stat ${hpClass}">
+                            <span class="faction-stat-label">HP:</span>
+                            <span class="faction-stat-value">${faction.current_hp}/${faction.max_hp}</span>
+                        </div>
+                        <div class="faction-stat">
+                            <span class="faction-stat-label">Force:</span>
+                            <span class="faction-stat-value">${faction.force_stat}</span>
+                        </div>
+                        <div class="faction-stat">
+                            <span class="faction-stat-label">Wealth:</span>
+                            <span class="faction-stat-value">${faction.wealth_stat}</span>
+                        </div>
+                        <div class="faction-stat">
+                            <span class="faction-stat-label">Cunning:</span>
+                            <span class="faction-stat-value">${faction.cunning_stat}</span>
+                        </div>
+                        <div class="faction-stat">
+                            <span class="faction-stat-label">Magic:</span>
+                            <span class="faction-stat-value">${faction.magic_stat}</span>
+                        </div>
+                        <div class="faction-stat">
+                            <span class="faction-stat-label">Treasure:</span>
+                            <span class="faction-stat-value">${faction.treasure_stat}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showFactionEditor(factionName = null) {
+            if (userRole !== 'dm') return;
+
+            const modal = document.getElementById('factionEditor');
+            const faction = factionName ? factionStats.find(f => f.faction_name === factionName) : null;
+            
+            currentEditingFaction = faction;
+            
+            // Populate form
+            document.getElementById('editFactionName').value = faction ? faction.faction_name : '';
+            document.getElementById('editFactionCurrentHP').value = faction ? faction.current_hp : 0;
+            document.getElementById('editFactionMaxHP').value = faction ? faction.max_hp : 0;
+            document.getElementById('editFactionForce').value = faction ? faction.force_stat : 0;
+            document.getElementById('editFactionWealth').value = faction ? faction.wealth_stat : 0;
+            document.getElementById('editFactionCunning').value = faction ? faction.cunning_stat : 0;
+            document.getElementById('editFactionMagic').value = faction ? faction.magic_stat : 'None';
+            document.getElementById('editFactionTreasure').value = faction ? faction.treasure_stat : 0;
+            document.getElementById('editFactionVisible').checked = faction ? faction.is_visible : false;
+            
+            // Show/hide delete button based on whether this is a new or existing faction
+            const deleteBtn = document.getElementById('deleteFactionBtn');
+            deleteBtn.style.display = faction ? 'inline-block' : 'none';
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideFactionEditor() {
+            document.getElementById('factionEditor').classList.add('hidden');
+            currentEditingFaction = null;
+        }
+
+        function saveFactionStats() {
+            if (userRole !== 'dm') return;
+
+            const newFactionName = document.getElementById('editFactionName').value.trim();
+            const factionData = {
+                faction_name: newFactionName,
+                current_hp: parseInt(document.getElementById('editFactionCurrentHP').value) || 0,
+                max_hp: parseInt(document.getElementById('editFactionMaxHP').value) || 0,
+                force_stat: parseInt(document.getElementById('editFactionForce').value) || 0,
+                wealth_stat: parseInt(document.getElementById('editFactionWealth').value) || 0,
+                cunning_stat: parseInt(document.getElementById('editFactionCunning').value) || 0,
+                magic_stat: document.getElementById('editFactionMagic').value.trim() || 'None',
+                treasure_stat: parseInt(document.getElementById('editFactionTreasure').value) || 0,
+                is_visible: document.getElementById('editFactionVisible').checked
+            };
+
+            if (!factionData.faction_name) {
+                alert('Faction name is required');
+                return;
+            }
+
+            // If we're editing an existing faction and the name changed, 
+            // delete the old one first to prevent duplicates
+            if (currentEditingFaction && currentEditingFaction.faction_name !== newFactionName) {
+                console.log('Faction name changed, deleting old faction:', currentEditingFaction.faction_name);
+                socket.emit('faction_stats:delete', currentEditingFaction.faction_name);
+            }
+
+            socket.emit('faction_stats:update', factionData);
+            hideFactionEditor();
+        }
+
+        function deleteFactionStats() {
+            if (userRole !== 'dm' || !currentEditingFaction) return;
+
+            if (confirm(`Delete faction "${currentEditingFaction.faction_name}"?`)) {
+                socket.emit('faction_stats:delete', currentEditingFaction.faction_name);
+                hideFactionEditor();
+            }
+        }
+
+        // Auto-create faction stats for new token factions (DM feature)
+        function autoCreateFactionStats(factionName) {
+            if (userRole !== 'dm' || !factionName) return;
+            
+            // Check if faction already exists
+            const existingFaction = factionStats.find(f => f.faction_name === factionName);
+            if (existingFaction) return;
+            
+            // Create basic faction entry
+            const newFactionData = {
+                faction_name: factionName,
+                current_hp: 100,
+                max_hp: 100,
+                force_stat: 1,
+                wealth_stat: 1,
+                cunning_stat: 1,
+                magic_stat: 1,
+                treasure_stat: 1,
+                is_visible: false // Not visible by default
+            };
+            
+            socket.emit('faction_stats:update', newFactionData);
+        }
+
+        // Hook into token creation to auto-create faction stats
+        const originalTokenPlaceHandler = () => {
+            // We'll override this after the original socket handlers are set up
+        };
+
+        // Update UI when role changes
+        const originalUpdateUIForRole = updateUIForRole;
+        updateUIForRole = function() {
+            originalUpdateUIForRole();
+            updateFactionStatsDisplay();
+        };
+
+        // ===============================
+        // MOVE PROPOSALS SYSTEM
+        // ===============================
+        
+        let moveProposals = [];
+        let movableFactionsConfig = [];
+        let ghostTokens = new Map(); // Map to store ghost token elements
+        let proposalArrows = new Map(); // Map to store arrow elements
+        
+        // Socket handlers for move proposals
+        socket.on('move_proposals:load', (loadedProposals) => {
+            moveProposals = loadedProposals;
+            console.log('🎯 Loaded move proposals:', moveProposals);
+            renderGhostTokens();
+        });
+
+        socket.on('movable_factions:load', (loadedConfig) => {
+            movableFactionsConfig = loadedConfig;
+            console.log('🎯 Loaded movable factions config:', movableFactionsConfig);
+            updateMovableFactionsModal();
+        });
+
+        socket.on('move_proposal:created', (proposal) => {
+            console.log('🎯 Move proposal created:', proposal);
+            moveProposals.push(proposal);
+            renderGhostTokens();
+            // Force pool refresh if radial pool is currently shown
+            const radialPool = document.getElementById('radialPool');
+            if (radialPool) {
+                hideRadialPool();
+            }
+        });
+
+        socket.on('move_proposal:updated', (updatedProposal) => {
+            console.log('🎯 Move proposal updated:', updatedProposal);
+            const existingIndex = moveProposals.findIndex(p => p.token_id === updatedProposal.token_id);
+            if (existingIndex !== -1) {
+                moveProposals[existingIndex] = updatedProposal;
+                renderGhostTokens();
+            }
+        });
+
+        socket.on('move_proposal:approved', (proposalId) => {
+            console.log('🎯 Move proposal approved:', proposalId);
+            moveProposals = moveProposals.filter(p => p.id !== proposalId);
+            renderGhostTokens();
+            // Force pool refresh if radial pool is currently shown
+            const radialPool = document.getElementById('radialPool');
+            if (radialPool) {
+                hideRadialPool();
+            }
+        });
+
+        socket.on('move_proposal:rejected', (proposalId) => {
+            console.log('🎯 Move proposal rejected:', proposalId);
+            moveProposals = moveProposals.filter(p => p.id !== proposalId);
+            renderGhostTokens();
+            // Force pool refresh if radial pool is currently shown
+            const radialPool = document.getElementById('radialPool');
+            if (radialPool) {
+                hideRadialPool();
+            }
+        });
+
+        socket.on('move_proposals:cleared', () => {
+            console.log('🎯 All move proposals cleared');
+            moveProposals = [];
+            renderGhostTokens();
+            // Force pool refresh if radial pool is currently shown
+            const radialPool = document.getElementById('radialPool');
+            if (radialPool) {
+                hideRadialPool();
+            }
+        });
+
+        socket.on('movable_factions:updated', (config) => {
+            console.log('🎯 Movable factions config updated:', config);
+            movableFactionsConfig = config;
+            updateMovableFactionsModal();
+        });
+
+        // Check if a token can be moved by players
+        function isTokenMovableByPlayers(token) {
+            if (!token.faction) return false;
+            return movableFactionsConfig.some(config => 
+                config.faction_name === token.faction && config.is_movable
+            );
+        }
+
+        // Pool detection and management utilities
+        function getTokenPool(tokenId) {
+            // Find which pool contains this token
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+            const threshold = 40; // Same threshold used in renderTokens
+            
+            const targetToken = tokens.find(t => t.id === tokenId);
+            if (!targetToken) return null;
+            
+            // Filter tokens based on visibility to current user role
+            const visibleTokens = userRole === 'dm' ? tokens : tokens.filter(t => t.visible_to_players !== false);
+            
+            const pool = [targetToken];
+            const processed = new Set([tokenId]);
+            
+            visibleTokens.forEach(otherToken => {
+                if (processed.has(otherToken.id)) return;
+                
+                const distance = Math.sqrt(
+                    Math.pow((targetToken.x - otherToken.x) * scaleX, 2) +
+                    Math.pow((targetToken.y - otherToken.y) * scaleY, 2)
+                );
+                
+                if (distance <= threshold) {
+                    pool.push(otherToken);
+                    processed.add(otherToken.id);
+                }
+            });
+            
+            return pool.length > 1 ? pool : null; // Only return if it's actually a pool
+        }
+        
+        function calculatePoolCenter(pool) {
+            if (!pool || pool.length === 0) return null;
+            
+            const centerX = pool.reduce((sum, token) => sum + token.x, 0) / pool.length;
+            const centerY = pool.reduce((sum, token) => sum + token.y, 0) / pool.length;
+            
+            return { x: centerX, y: centerY };
+        }
+        
+        function doesPoolContainGhostableTokens(pool) {
+            if (!pool) return false;
+            return pool.some(token => isTokenMovableByPlayers(token));
+        }
+        
+        function getPoolAtPosition(x, y, radius = 50) {
+            // Find if there's a pool at the given position (for ghost snapping)
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+            const threshold = 40;
+            
+            // Convert screen coordinates to game coordinates
+            const gameX = x / scaleX;
+            const gameY = y / scaleY;
+            
+            // Filter tokens based on visibility to current user role
+            const visibleTokens = userRole === 'dm' ? tokens : tokens.filter(t => t.visible_to_players !== false);
+            
+            // Find visible tokens near this position
+            const nearbyTokens = visibleTokens.filter(token => {
+                const distance = Math.sqrt(
+                    Math.pow((token.x - gameX) * scaleX, 2) +
+                    Math.pow((token.y - gameY) * scaleY, 2)
+                );
+                return distance <= radius;
+            });
+            
+            if (nearbyTokens.length > 1) {
+                return nearbyTokens;
+            }
+            
+            return null;
+        }
+
+        // Helper function to calculate edge-to-edge arrow positions
+        function calculateEdgeToEdgePositions(startX, startY, endX, endY) {
+            const tokenRadius = 12; // Half of token size (20px / 2 = 10px, plus 2px border)
+            const spacing = 3; // Small spacing from token edge
+            const offset = tokenRadius + spacing;
+            
+            return calculateEdgeToEdgePositionsWithRadius(startX, startY, endX, endY, tokenRadius, tokenRadius);
+        }
+        
+        // Helper function with custom radii for pools vs tokens
+        function calculateEdgeToEdgePositionsWithRadius(startX, startY, endX, endY, startRadius = 12, endRadius = 12) {
+            const spacing = 3; // Small spacing from edge
+            const startOffset = startRadius + spacing;
+            const endOffset = endRadius + spacing;
+            
+            // Calculate direction vector
+            const dx = endX - startX;
+            const dy = endY - startY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance === 0) {
+                return { startX, startY, endX, endY }; // Same position, no offset
+            }
+            
+            // Calculate unit vector
+            const unitDx = dx / distance;
+            const unitDy = dy / distance;
+            
+            // Offset start and end points with different radii
+            const offsetStartX = startX + unitDx * startOffset;
+            const offsetStartY = startY + unitDy * startOffset;
+            const offsetEndX = endX - unitDx * endOffset;
+            const offsetEndY = endY - unitDy * endOffset;
+            
+            return {
+                startX: offsetStartX,
+                startY: offsetStartY,
+                endX: offsetEndX,
+                endY: offsetEndY
+            };
+        }
+
+        // Enhanced token drag for players - create ghost tokens
+        function handlePlayerTokenDrag(token, startEvent) {
+            // Only handle for players who can move this token
+            if (userRole !== 'player' || !isTokenMovableByPlayers(token)) {
+                return false; // Not a player move proposal
+            }
+
+            // Check if a proposal already exists for this token
+            const existingProposal = moveProposals.find(p => p.token_id === token.id);
+            if (existingProposal) {
+                console.log('🎯 Proposal already exists for token:', token.name);
+                return false; // Don't allow multiple proposals
+            }
+
+            console.log('🎯 Starting player move proposal for token:', token.name);
+            
+            const rect = gameMap.getBoundingClientRect();
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+
+            let dragStarted = false;
+            const startX = startEvent.clientX;
+            const startY = startEvent.clientY;
+
+            const handleMouseMove = (moveE) => {
+                const dx = moveE.clientX - startX;
+                const dy = moveE.clientY - startY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance > 5 && !dragStarted) {
+                    dragStarted = true;
+                    console.log('🎯 Creating ghost token for proposal');
+                    createGhostToken(token, moveE);
+                }
+                
+                if (dragStarted) {
+                    updateGhostTokenPosition(token.id, moveE);
+                }
+            };
+
+            const handleMouseUp = (upE) => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                
+                if (dragStarted) {
+                    finalizeGhostTokenPosition(token, upE);
+                }
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            
+            return true; // Handled as player proposal
+        }
+
+        function createGhostToken(originalToken, event) {
+            const rect = gameMap.getBoundingClientRect();
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+
+            // Create ghost token element
+            const ghostEl = document.createElement('div');
+            ghostEl.className = 'ghost-token';
+            ghostEl.style.backgroundColor = originalToken.color;
+            ghostEl.style.left = (originalToken.x * scaleX) + 'px';
+            ghostEl.style.top = (originalToken.y * scaleY) + 'px';
+            // Ghost tokens have no text content for cleaner appearance
+            ghostEl.title = `Proposed move for ${originalToken.name}`;
+
+            mapContainer.appendChild(ghostEl);
+            ghostTokens.set(originalToken.id, ghostEl);
+
+            // Create arrow from original to ghost
+            createProposalArrow(originalToken.id, originalToken, {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            });
+        }
+
+        function updateGhostTokenPosition(tokenId, event) {
+            const ghostEl = ghostTokens.get(tokenId);
+            if (!ghostEl) return;
+
+            const rect = gameMap.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            ghostEl.style.left = x + 'px';
+            ghostEl.style.top = y + 'px';
+
+            // Update arrow
+            const originalToken = tokens.find(t => t.id === tokenId);
+            if (originalToken) {
+                updateProposalArrow(tokenId, originalToken, { x, y });
+            }
+        }
+
+        function finalizeGhostTokenPosition(originalToken, event) {
+            const rect = gameMap.getBoundingClientRect();
+            const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
+            const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
+
+            const proposedX = Math.round((event.clientX - rect.left) * scaleX);
+            const proposedY = Math.round((event.clientY - rect.top) * scaleY);
+
+            console.log('🎯 Finalizing move proposal:', {
+                token: originalToken.name,
+                from: [originalToken.x, originalToken.y],
+                to: [proposedX, proposedY]
+            });
+
+            // Send move proposal to server
+            socket.emit('move_proposal:create', {
+                token_id: originalToken.id,
+                original_x: originalToken.x,
+                original_y: originalToken.y,
+                proposed_x: proposedX,
+                proposed_y: proposedY
+            });
+        }
+
+        function createProposalArrow(tokenId, originalToken, ghostPos) {
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+
+            const originalCenterX = originalToken.x * scaleX;
+            const originalCenterY = originalToken.y * scaleY;
+            
+            // Calculate edge-to-edge positions
+            const edgePositions = calculateEdgeToEdgePositions(
+                originalCenterX, originalCenterY, 
+                ghostPos.x, ghostPos.y
+            );
+            
+            const originalX = edgePositions.startX;
+            const originalY = edgePositions.startY;
+            const ghostX = edgePositions.endX;
+            const ghostY = edgePositions.endY;
+
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            arrow.className = 'proposal-arrow';
+            arrow.style.position = 'absolute';
+            arrow.style.left = '0';
+            arrow.style.top = '0';
+            arrow.style.width = '100%';
+            arrow.style.height = '100%';
+            arrow.style.pointerEvents = 'none';
+            arrow.style.zIndex = '1000';
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', originalX);
+            line.setAttribute('y1', originalY);
+            line.setAttribute('x2', ghostX);
+            line.setAttribute('y2', ghostY);
+            line.setAttribute('stroke', '#ffeb3b');
+            line.setAttribute('stroke-width', '3');
+            line.setAttribute('stroke-dasharray', '5,5');
+            line.setAttribute('marker-end', 'url(#arrowhead)');
+
+            // Create arrowhead marker
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', 'arrowhead');
+            marker.setAttribute('markerWidth', '10');
+            marker.setAttribute('markerHeight', '7');
+            marker.setAttribute('refX', '10');
+            marker.setAttribute('refY', '3.5');
+            marker.setAttribute('orient', 'auto');
+
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+            polygon.setAttribute('fill', '#ffeb3b');
+
+            marker.appendChild(polygon);
+            defs.appendChild(marker);
+            arrow.appendChild(defs);
+            arrow.appendChild(line);
+
+            mapContainer.appendChild(arrow);
+            proposalArrows.set(tokenId, { arrow, line });
+        }
+
+        function updateProposalArrow(tokenId, originalToken, ghostPos) {
+            const arrowData = proposalArrows.get(tokenId);
+            if (!arrowData) return;
+
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+
+            const originalCenterX = originalToken.x * scaleX;
+            const originalCenterY = originalToken.y * scaleY;
+            
+            // Calculate edge-to-edge positions
+            const edgePositions = calculateEdgeToEdgePositions(
+                originalCenterX, originalCenterY, 
+                ghostPos.x, ghostPos.y
+            );
+
+            arrowData.line.setAttribute('x1', edgePositions.startX);
+            arrowData.line.setAttribute('y1', edgePositions.startY);
+            arrowData.line.setAttribute('x2', edgePositions.endX);
+            arrowData.line.setAttribute('y2', edgePositions.endY);
+        }
+        
+        function cleanupAllArrows() {
+            // Remove all arrows from DOM (both tracked and untracked)
+            document.querySelectorAll('.proposal-arrow').forEach(arrow => arrow.remove());
+            document.querySelectorAll('svg[class*="arrow"]').forEach(arrow => arrow.remove());
+            document.querySelectorAll('svg line[stroke="#ffeb3b"]').forEach(line => line.parentElement.remove());
+        }
+
+        function renderGhostTokens() {
+            // Clear existing ghost tokens and arrows
+            ghostTokens.forEach(ghostEl => ghostEl.remove());
+            proposalArrows.forEach(arrowData => arrowData.arrow.remove());
+            ghostTokens.clear();
+            proposalArrows.clear();
+            
+            // Also remove any stray arrows that might not be tracked
+            cleanupAllArrows();
+
+            // Render ghost tokens for all current proposals
+            moveProposals.forEach(proposal => {
+                const originalToken = tokens.find(t => t.id === proposal.token_id);
+                if (!originalToken) return;
+
+                const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+                const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+
+                // Create ghost token
+                const ghostEl = document.createElement('div');
+                ghostEl.className = 'ghost-token';
+                ghostEl.style.backgroundColor = originalToken.color;
+                ghostEl.style.left = (proposal.proposed_x * scaleX) + 'px';
+                ghostEl.style.top = (proposal.proposed_y * scaleY) + 'px';
+                // Ghost tokens have no text content for cleaner appearance
+                ghostEl.title = `Proposed move for ${originalToken.name}`;
+
+                // Add approval buttons for DM
+                if (userRole === 'dm') {
+                    const approveBtn = document.createElement('button');
+                    approveBtn.className = 'ghost-approve-btn';
+                    approveBtn.innerHTML = '✓';
+                    approveBtn.title = 'Approve move';
+                    approveBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        socket.emit('move_proposal:approve', proposal.id);
+                    };
+
+                    const rejectBtn = document.createElement('button');
+                    rejectBtn.className = 'ghost-reject-btn';
+                    rejectBtn.innerHTML = '✗';
+                    rejectBtn.title = 'Reject move';
+                    rejectBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        socket.emit('move_proposal:reject', proposal.id);
+                    };
+
+                    ghostEl.appendChild(approveBtn);
+                    ghostEl.appendChild(rejectBtn);
+                }
+                
+                // Add cancel button for players (only for their own proposals)
+                if (userRole === 'player') {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'ghost-cancel-btn';
+                    cancelBtn.innerHTML = '✗';
+                    cancelBtn.title = 'Cancel move proposal';
+                    cancelBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        console.log('🎯 Player canceling proposal:', proposal.id);
+                        socket.emit('move_proposal:cancel', proposal.id);
+                    };
+                    
+                    ghostEl.appendChild(cancelBtn);
+                }
+
+                // Add dragging capability for players
+                if (userRole === 'player') {
+                    ghostEl.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Don't drag if clicking on cancel button
+                        if (e.target.classList.contains('ghost-cancel-btn')) {
+                            return;
+                        }
+                        
+                        const rect = gameMap.getBoundingClientRect();
+                        const scaleX = gameMap.naturalWidth / gameMap.clientWidth;
+                        const scaleY = gameMap.naturalHeight / gameMap.clientHeight;
+                        
+                        let dragStarted = false;
+                        const startX = e.clientX;
+                        const startY = e.clientY;
+                        
+                        const handleMouseMove = (moveE) => {
+                            const dx = moveE.clientX - startX;
+                            const dy = moveE.clientY - startY;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance > 5 && !dragStarted) {
+                                dragStarted = true;
+                                ghostEl.style.cursor = 'grabbing';
+                                console.log('🎯 Started dragging ghost token for:', originalToken.name);
+                            }
+                            
+                            if (dragStarted) {
+                                // Update ghost position
+                                const newX = moveE.clientX - rect.left;
+                                const newY = moveE.clientY - rect.top;
+                                
+                                // Check if ghost is near a pool for snapping
+                                const nearbyPool = getPoolAtPosition(newX, newY);
+                                if (nearbyPool) {
+                                    // Snap to pool center
+                                    const poolCenter = calculatePoolCenter(nearbyPool);
+                                    const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+                                    const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+                                    const poolCenterX = poolCenter.x * scaleX;
+                                    const poolCenterY = poolCenter.y * scaleY;
+                                    
+                                    ghostEl.style.left = poolCenterX + 'px';
+                                    ghostEl.style.top = poolCenterY + 'px';
+                                    ghostEl.style.transform = 'translate(-50%, -50%) scale(1.2)'; // Visual feedback
+                                    
+                                    // Update arrow to point to pool center
+                                    updateProposalArrow(originalToken.id, originalToken, { x: poolCenterX, y: poolCenterY });
+                                } else {
+                                    // Normal ghost positioning
+                                    ghostEl.style.left = newX + 'px';
+                                    ghostEl.style.top = newY + 'px';
+                                    ghostEl.style.transform = 'translate(-50%, -50%)'; // Reset scale
+                                    
+                                    // Update arrow
+                                    updateProposalArrow(originalToken.id, originalToken, { x: newX, y: newY });
+                                }
+                            }
+                        };
+                        
+                        const handleMouseUp = (upE) => {
+                            document.removeEventListener('mousemove', handleMouseMove);
+                            document.removeEventListener('mouseup', handleMouseUp);
+                            
+                            if (dragStarted) {
+                                const screenX = upE.clientX - rect.left;
+                                const screenY = upE.clientY - rect.top;
+                                
+                                // Check if final position is near a pool
+                                const nearbyPool = getPoolAtPosition(screenX, screenY);
+                                let finalX, finalY;
+                                
+                                if (nearbyPool) {
+                                    // Snap to pool center
+                                    const poolCenter = calculatePoolCenter(nearbyPool);
+                                    finalX = Math.round(poolCenter.x);
+                                    finalY = Math.round(poolCenter.y);
+                                    console.log('🎯 Ghost snapped to pool center:', finalX, finalY);
+                                } else {
+                                    // Use exact drop position
+                                    finalX = Math.round(screenX * scaleX);
+                                    finalY = Math.round(screenY * scaleY);
+                                    console.log('🎯 Ghost dropped at:', finalX, finalY);
+                                }
+                                
+                                // Update the existing proposal on the server
+                                socket.emit('move_proposal:update', {
+                                    token_id: originalToken.id,
+                                    proposed_x: finalX,
+                                    proposed_y: finalY
+                                });
+                            }
+                            
+                            ghostEl.style.cursor = 'grab';
+                        };
+                        
+                        document.addEventListener('mousemove', handleMouseMove);
+                        document.addEventListener('mouseup', handleMouseUp);
+                    });
+                }
+
+                mapContainer.appendChild(ghostEl);
+                ghostTokens.set(originalToken.id, ghostEl);
+
+                // Create arrow
+                createStaticProposalArrow(proposal, originalToken);
+            });
+        }
+
+        function createStaticProposalArrow(proposal, originalToken) {
+            const scaleX = gameMap.clientWidth / gameMap.naturalWidth;
+            const scaleY = gameMap.clientHeight / gameMap.naturalHeight;
+
+            // Check if source token is in a pool
+            const sourcePool = getTokenPool(originalToken.id);
+            let originalCenterX, originalCenterY;
+            
+            if (sourcePool) {
+                // Use pool center as source
+                const poolCenter = calculatePoolCenter(sourcePool);
+                originalCenterX = poolCenter.x * scaleX;
+                originalCenterY = poolCenter.y * scaleY;
+            } else {
+                // Use current token position as source (not stored proposal position)
+                originalCenterX = originalToken.x * scaleX;
+                originalCenterY = originalToken.y * scaleY;
+            }
+            
+            // Check if destination is at a pool location
+            const destinationPool = getPoolAtPosition(proposal.proposed_x * scaleX, proposal.proposed_y * scaleY, 30);
+            let proposedCenterX, proposedCenterY;
+            
+            if (destinationPool) {
+                // Use pool center as destination
+                const poolCenter = calculatePoolCenter(destinationPool);
+                proposedCenterX = poolCenter.x * scaleX;
+                proposedCenterY = poolCenter.y * scaleY;
+            } else {
+                // Use exact proposal position
+                proposedCenterX = proposal.proposed_x * scaleX;
+                proposedCenterY = proposal.proposed_y * scaleY;
+            }
+            
+            // Calculate edge-to-edge positions (using pool radius of 15px instead of token radius for pools)
+            const startRadius = sourcePool ? 15 : 12;
+            const endRadius = destinationPool ? 15 : 12;
+            const edgePositions = calculateEdgeToEdgePositionsWithRadius(
+                originalCenterX, originalCenterY, 
+                proposedCenterX, proposedCenterY,
+                startRadius, endRadius
+            );
+            
+            const originalX = edgePositions.startX;
+            const originalY = edgePositions.startY;
+            const proposedX = edgePositions.endX;
+            const proposedY = edgePositions.endY;
+
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            arrow.className = 'proposal-arrow';
+            arrow.style.position = 'absolute';
+            arrow.style.left = '0';
+            arrow.style.top = '0';
+            arrow.style.width = '100%';
+            arrow.style.height = '100%';
+            arrow.style.pointerEvents = 'none';
+            arrow.style.zIndex = '1000';
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', originalX);
+            line.setAttribute('y1', originalY);
+            line.setAttribute('x2', proposedX);
+            line.setAttribute('y2', proposedY);
+            line.setAttribute('stroke', '#ffeb3b');
+            line.setAttribute('stroke-width', '3');
+            line.setAttribute('stroke-dasharray', '5,5');
+            line.setAttribute('marker-end', 'url(#arrowhead-static)');
+
+            // Create arrowhead marker
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', 'arrowhead-static');
+            marker.setAttribute('markerWidth', '10');
+            marker.setAttribute('markerHeight', '7');
+            marker.setAttribute('refX', '10');
+            marker.setAttribute('refY', '3.5');
+            marker.setAttribute('orient', 'auto');
+
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+            polygon.setAttribute('fill', '#ffeb3b');
+
+            marker.appendChild(polygon);
+            defs.appendChild(marker);
+            arrow.appendChild(defs);
+            arrow.appendChild(line);
+
+            mapContainer.appendChild(arrow);
+            proposalArrows.set(originalToken.id, { arrow, line });
+        }
+
+        // DM Controls for move proposals
+        function clearAllProposals() {
+            if (userRole !== 'dm') return;
+            if (confirm('Clear all move proposals?')) {
+                socket.emit('move_proposals:clear_all');
+            }
+        }
+
+        function approveAllProposals() {
+            if (userRole !== 'dm') return;
+            if (confirm('Approve all move proposals?')) {
+                moveProposals.forEach(proposal => {
+                    socket.emit('move_proposal:approve', proposal.id);
+                });
+            }
+        }
+
+        // Movable Factions Configuration
+        function showMovableFactionsModal() {
+            if (userRole !== 'dm') return;
+            document.getElementById('movableFactionsModal').classList.remove('hidden');
+            updateMovableFactionsModal();
+        }
+
+        function hideMovableFactionsModal() {
+            document.getElementById('movableFactionsModal').classList.add('hidden');
+        }
+
+        function updateMovableFactionsModal() {
+            const container = document.getElementById('movableFactionsContainer');
+            
+            // Get unique faction names from all tokens
+            const allFactions = [...new Set(tokens.map(t => t.faction).filter(f => f))];
+            
+            container.innerHTML = allFactions.map(faction => {
+                const isMovable = movableFactionsConfig.some(config => 
+                    config.faction_name === faction && config.is_movable
+                );
+                
+                return `
+                    <div class="movable-faction-item">
+                        <label>
+                            <input type="checkbox" 
+                                   ${isMovable ? 'checked' : ''} 
+                                   onchange="toggleFactionMovable('${faction}', this.checked)">
+                            <span>${faction}</span>
+                        </label>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleFactionMovable(factionName, isMovable) {
+            const existingConfigIndex = movableFactionsConfig.findIndex(c => c.faction_name === factionName);
+            
+            if (existingConfigIndex !== -1) {
+                movableFactionsConfig[existingConfigIndex].is_movable = isMovable;
+            } else {
+                movableFactionsConfig.push({
+                    faction_name: factionName,
+                    is_movable: isMovable
+                });
+            }
+            
+            // Send updated config to server
+            socket.emit('movable_factions:update', movableFactionsConfig);
+        }
+
+        // Enhanced token mousedown handler to check for player proposals
+        const originalTokenMouseDown = function(originalHandler) {
+            return function(token, event) {
+                if (handlePlayerTokenDrag(token, event)) {
+                    return; // Handled as player proposal
+                }
+                originalHandler(token, event); // Fall back to original DM drag
+            };
+        };
+
+        // Re-render ghost tokens when tokens are updated
+        const originalRenderTokens = renderTokens;
+        renderTokens = function() {
+            originalRenderTokens();
+            renderGhostTokens();
+        };
+
+        // Arrow updates are now handled in the main token:moved handler above
     </script>
 </body>
 </html>
